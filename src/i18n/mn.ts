@@ -252,6 +252,18 @@ export const mn = {
     noHistory: 'Одоогоор дасгал хийгээгүй байна.',
     calories: 'Илчлэг',
   },
+  awards: {
+    kicker: 'ШАГНАЛ',
+    congrats: 'Баяр хүргэе! Та шинэ шагнал хүртлээ —',
+    howTo: 'Энэ шагналыг авахын тулд:',
+    notEarned: 'Хараахан аваагүй',
+    done: 'Дууслаа',
+    share: 'Хуваалцах',
+    shareText: 'Би Dasgal дээр "{award}" шагнал хүртлээ!',
+    title: 'Шагналууд',
+    earnedOn: 'Авсан огноо',
+    count: '{n}/{total} шагнал',
+  },
   badges: {
     first_workout: { name: 'Анхны алхам', description: 'Анхны дасгалаа дуусгасан' },
     streak_3: { name: '3 өдөр дараалан', description: '3 өдөр дараалан дасгал хийсэн' },

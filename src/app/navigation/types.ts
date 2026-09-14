@@ -26,6 +26,7 @@ export type RootStackParamList = {
   WorkoutSession: { dayIndex: number };
   WorkoutComplete: { record: WorkoutRecord; outcome: RecordOutcome };
   TitleUnlock: { level: number };
+  Award: { badgeIds: string[]; index?: number; after?: 'title' | 'home' | 'back'; level?: number };
 };
 
 export type MainTabParamList = {

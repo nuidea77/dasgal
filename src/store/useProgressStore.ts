@@ -18,6 +18,8 @@ export interface RecordOutcome {
 interface ProgressState {
   xp: number;
   badges: string[];
+  /** Badge id → ISO date it was earned, for the award screen. */
+  badgeDates: Record<string, string>;
   history: WorkoutRecord[];
   totalReps: number;
   repsByExercise: Record<string, number>;
@@ -41,6 +43,7 @@ export const useProgressStore = create<ProgressState>()(
     (set, get) => ({
       xp: 0,
       badges: [],
+      badgeDates: {},
       history: [],
       totalReps: 0,
       repsByExercise: {},
@@ -96,9 +99,12 @@ export const useProgressStore = create<ProgressState>()(
           level,
         };
         const newBadges = newlyEarnedBadges(snapshot, s.badges);
+        const badgeDates = { ...s.badgeDates };
+        for (const id of newBadges) badgeDates[id] = record.date;
         set({
           xp,
           badges: [...s.badges, ...newBadges],
+          badgeDates,
           history: [...s.history, { ...record, xp: xpGained }],
           totalReps: snapshot.totalReps,
           repsByExercise,
@@ -110,7 +116,7 @@ export const useProgressStore = create<ProgressState>()(
         return { xpGained, newBadges, leveledUp: level > prevLevel, level, streakDays };
       },
       reset: () =>
-        set({ xp: 0, badges: [], history: [], totalReps: 0, repsByExercise: {}, hardWorkouts: 0, perfectWorkouts: 0, programsCompleted: 0, streakDays: 0, penalizedDates: [], lastPenalty: null }),
+        set({ xp: 0, badges: [], badgeDates: {}, history: [], totalReps: 0, repsByExercise: {}, hardWorkouts: 0, perfectWorkouts: 0, programsCompleted: 0, streakDays: 0, penalizedDates: [], lastPenalty: null }),
     }),
     { name: 'dasgal.progress', storage: asyncStorage },
   ),

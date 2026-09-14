@@ -28,6 +28,7 @@ import { WorkoutCompleteScreen } from '@/features/workout/WorkoutCompleteScreen'
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
 import { LibraryScreen } from '@/features/library/LibraryScreen';
 import { TitleUnlockScreen } from '@/features/gamification/TitleUnlockScreen';
+import { AwardScreen } from '@/features/gamification/AwardScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { MainTabParamList, OnboardingStackParamList, RootStackParamList } from './types';
 
@@ -73,6 +74,7 @@ export function RootNavigator() {
           <Root.Screen name="WorkoutSession" component={WorkoutSessionScreen} options={{ headerShown: false, gestureEnabled: false, orientation: 'portrait' }} />
           <Root.Screen name="WorkoutComplete" component={WorkoutCompleteScreen} options={{ headerShown: false, gestureEnabled: false }} />
           <Root.Screen name="TitleUnlock" component={TitleUnlockScreen} options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
+          <Root.Screen name="Award" component={AwardScreen} options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
         </Root.Navigator>
       ) : (
         <Onboarding.Navigator screenOptions={{ headerShown: false }}>

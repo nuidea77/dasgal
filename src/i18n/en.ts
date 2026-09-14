@@ -84,6 +84,18 @@ export const en: Translations = {
     title: 'My progress', level: 'Level', xpToNext: 'to next level', streak: 'Day streak', workouts: 'Workouts', totalReps: 'Total reps',
     badges: 'Badges', locked: 'Locked', history: 'History', noHistory: 'No workouts yet.', calories: 'Calories',
   },
+  awards: {
+    kicker: 'AWARDS',
+    congrats: "Congrats! You've earned a new award for",
+    howTo: 'To earn this award:',
+    notEarned: 'Not earned yet',
+    done: 'Done',
+    share: 'Share',
+    shareText: 'I just earned the "{award}" award in Dasgal!',
+    title: 'Awards',
+    earnedOn: 'Earned',
+    count: '{n}/{total} awards',
+  },
   badges: {
     first_workout: { name: 'First step', description: 'Completed your first workout' },
     streak_3: { name: '3-day streak', description: 'Worked out 3 days in a row' },

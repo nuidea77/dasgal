@@ -5,7 +5,9 @@ import { RootScreenProps } from '@/app/navigation/types';
 import { Body, Button, Card, Row, Screen, Stat, Title } from '@/components/ui';
 import { Confetti } from '@/components/Confetti';
 import { Icon } from '@/components/Icon';
+import { AwardMedal } from '@/components/AwardMedal';
 import { BADGES } from '@/domain/gamification/badges';
+import { paletteFor } from '@/domain/gamification/awards';
 import { titleForLevel } from '@/domain/gamification/titles';
 import { XpBar } from '@/components/XpBar';
 import { titleName } from '@/features/gamification/titleName';
@@ -22,6 +24,21 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
   useEffect(() => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }, []);
+
+  // Awards get their own ceremony, then the rank unlock, then back to the plan.
+  const continueFlow = () => {
+    if (outcome.newBadges.length > 0) {
+      navigation.replace('Award', {
+        badgeIds: outcome.newBadges,
+        after: outcome.leveledUp ? 'title' : 'home',
+        level: outcome.level,
+      });
+    } else if (outcome.leveledUp) {
+      navigation.replace('TitleUnlock', { level: outcome.level });
+    } else {
+      navigation.popToTop();
+    }
+  };
 
   const minutes = Math.floor(record.durationSec / 60);
   const seconds = record.durationSec % 60;
@@ -63,8 +80,8 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
               const info = t.badges[id as keyof typeof t.badges];
               return (
                 <Row key={id}>
-                  <Icon name={def?.icon ?? 'award'} size={30} color={colors.warning} />
-                  <View>
+                  <AwardMedal icon={def?.icon ?? 'award'} palette={paletteFor(id)} size={54} />
+                  <View style={{ flex: 1 }}>
                     <Body style={{ fontWeight: '700' }}>{info?.name ?? id}</Body>
                     <Body muted>{info?.description}</Body>
                   </View>
@@ -74,7 +91,7 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
           </Card>
         ) : null}
         <View style={{ flex: 1 }} />
-        <Button title={t.complete.continue} size="lg" onPress={() => (outcome.leveledUp ? navigation.replace('TitleUnlock', { level: outcome.level }) : navigation.popToTop())} />
+        <Button title={t.complete.continue} size="lg" onPress={continueFlow} />
       </Screen>
       <Confetti />
     </View>

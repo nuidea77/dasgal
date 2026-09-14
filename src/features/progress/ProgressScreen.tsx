@@ -5,7 +5,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/app/navigation/types';
 import { Body, Caption, Card, ProgressBar, Row, Screen, Stat, Subheading, Title } from '@/components/ui';
 import { Icon } from '@/components/Icon';
+import { AwardMedal } from '@/components/AwardMedal';
 import { BADGES } from '@/domain/gamification/badges';
+import { paletteFor } from '@/domain/gamification/awards';
 import { levelProgress } from '@/domain/gamification/levels';
 import { nextTitle, titleForLevel } from '@/domain/gamification/titles';
 import { titleName } from '@/features/gamification/titleName';
@@ -52,18 +54,24 @@ export function ProgressScreen() {
           <Stat label={t.progress.calories} value={`${totalCalories}`} />
         </Row>
       </Card>
-      <Subheading>{t.progress.badges}</Subheading>
+      <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+        <Subheading>{t.awards.title}</Subheading>
+        <Caption>{format(t.awards.count, { n: p.badges.length, total: BADGES.length })}</Caption>
+      </Row>
       <View style={styles.badgeGrid}>
-        {BADGES.map((b) => {
+        {BADGES.map((b, i) => {
           const info = t.badges[b.id as keyof typeof t.badges];
           const has = owned.has(b.id);
           return (
-            <View key={b.id} style={[styles.badge, !has && styles.badgeLocked]}>
-              <View style={styles.badgeIcon}>
-                <Icon name={has ? b.icon : 'lock'} size={26} color={has ? colors.warning : colors.textDim} />
-              </View>
-              <Text style={styles.badgeName} numberOfLines={2}>{info?.name ?? b.id}</Text>
-            </View>
+            <Pressable
+              key={b.id}
+              style={styles.badge}
+              accessibilityRole="button"
+              onPress={() => navigation.navigate('Award', { badgeIds: BADGES.map((x) => x.id), index: i, after: 'back' })}
+            >
+              <AwardMedal icon={b.icon} palette={paletteFor(b.id)} size={64} locked={!has} />
+              <Text style={[styles.badgeName, !has && { color: colors.textDim }]} numberOfLines={2}>{info?.name ?? b.id}</Text>
+            </Pressable>
           );
         })}
       </View>
@@ -89,8 +97,6 @@ const styles = StyleSheet.create({
   levelPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.bgElevated, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill },
   levelText: { color: colors.text, fontWeight: '800' },
   badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  badge: { width: '30%', flexGrow: 1, backgroundColor: colors.card, borderRadius: radius.md, padding: spacing.sm, alignItems: 'center', gap: 4, borderWidth: 1, borderColor: colors.cardBorder },
-  badgeLocked: { opacity: 0.4 },
-  badgeIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
+  badge: { width: '30%', flexGrow: 1, backgroundColor: colors.card, borderRadius: radius.md, paddingVertical: spacing.md, paddingHorizontal: spacing.sm, alignItems: 'center', gap: spacing.xs, borderWidth: 1, borderColor: colors.cardBorder },
   badgeName: { color: colors.text, fontSize: 12, fontWeight: '600', textAlign: 'center' },
 });
