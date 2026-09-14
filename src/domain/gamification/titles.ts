@@ -2,26 +2,26 @@ import { levelForXp, xpForLevel } from './levels';
 
 /** Motivating rank names, one per level. Levels beyond the list reuse the last title with a numeral. */
 export const TITLE_KEYS = [
-  'first_step', // 1
-  'awakened', // 2
-  'go_getter', // 3
-  'steady', // 4
-  'strong_one', // 5
-  'fire_heart', // 6
-  'iron_will', // 7
-  'wind_speed', // 8
-  'steel_muscle', // 9
-  'workout_master', // 10
-  'barrier_breaker', // 11
-  'relentless', // 12
-  'champion', // 13
-  'mountain_wolf', // 14
-  'legend', // 15
-  'storm', // 16
-  'titan', // 17
-  'eternal_form', // 18
-  'grandmaster', // 19
-  'mythic_hero', // 20
+  'initiate', // 1 Initiate
+  'aspirant', // 2 Aspirant
+  'consistent', // 3 Consistent
+  'challenger', // 4 Challenger
+  'resilient', // 5 Resilient
+  'disciplined', // 6 The Disciplined
+  'relentless', // 7 Relentless
+  'iron_will', // 8 Iron Will
+  'indomitable', // 9 Indomitable
+  'warrior', // 10 Warrior
+  'limitless', // 11 Limitless
+  'self_conqueror', // 12 Self-Conqueror
+  'unshakable', // 13 Unshakable
+  'unbreakable', // 14 Unbreakable
+  'master', // 15 Master
+  'mind_and_body', // 16 Mind & Body
+  'invincible', // 17 Invincible
+  'absolute', // 18 Absolute
+  'living_legend', // 19 Living Legend
+  'eternal_warrior', // 20 Eternal Warrior
 ] as const;
 
 export type TitleKey = (typeof TITLE_KEYS)[number];
@@ -29,7 +29,7 @@ export type TitleKey = (typeof TITLE_KEYS)[number];
 export interface RankTitle {
   key: TitleKey;
   level: number;
-  /** Roman numeral suffix when the level exceeds the title list (e.g. "Mythic Hero II"). */
+  /** Roman numeral suffix when the level exceeds the title list (e.g. "Eternal Warrior II"). */
   suffix: string;
 }
 
