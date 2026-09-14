@@ -5,7 +5,11 @@ import { Body, Button, Caption, Card, Screen, Subheading, Title } from '@/compon
 import { StickFigureDemo } from '@/components/StickFigureDemo';
 import { Icon } from '@/components/Icon';
 import { ExerciseImage, hasExerciseImage } from '@/components/ExerciseImage';
+import { ExerciseVideo, hasExerciseVideo } from '@/components/ExerciseVideo';
 import { getExercise } from '@/domain/plan/exercises';
+import { estimateCalories } from '@/domain/plan/generator';
+import { format } from '@/i18n';
+import { useUserStore } from '@/store/useUserStore';
 import { useT } from '@/i18n';
 import { colors, radius, spacing } from '@/theme';
 
@@ -13,10 +17,20 @@ export function ExerciseDetailScreen({ route, navigation }: RootScreenProps<'Exe
   const t = useT();
   const ex = getExercise(route.params.exerciseId);
   const info = t.exercises[ex.id as keyof typeof t.exercises];
+  const weightKg = useUserStore((s) => s.profile?.weightKg ?? 70);
+  const unit = ex.countingMode === 'reps_ai' ? t.library.perRep : t.library.perSecond;
+  const perUnit = Math.round(ex.kcalPerUnit * (weightKg / 70) * 100) / 100;
+  const perSet = estimateCalories([{ exerciseId: ex.id, count: ex.countingMode === 'reps_ai' ? 12 : 30 }], weightKg);
   return (
     <Screen>
       <Title>{info?.name ?? ex.id}</Title>
-      {hasExerciseImage(ex.id) ? <ExerciseImage exerciseId={ex.id} style={styles.gif} /> : <StickFigureDemo rest={ex.demo.rest} active={ex.demo.active} size={260} />}
+      {hasExerciseVideo(ex.id) ? (
+        <ExerciseVideo exerciseId={ex.id} />
+      ) : hasExerciseImage(ex.id) ? (
+        <ExerciseImage exerciseId={ex.id} style={styles.gif} />
+      ) : (
+        <StickFigureDemo rest={ex.demo.rest} active={ex.demo.active} size={260} />
+      )}
       <StickFigureDemo rest={ex.demo.rest} active={ex.demo.active} size={140} />
       <Card>
         <Subheading>{t.plan.howTo}</Subheading>
@@ -39,8 +53,14 @@ export function ExerciseDetailScreen({ route, navigation }: RootScreenProps<'Exe
           <Caption style={{ flex: 1 }}>{t.plan[`cameraHint_${ex.cameraHint}` as const]}</Caption>
         </View>
         <View style={styles.step}>
+          <Icon name="flame" size={16} color={colors.warning} />
+          <Caption style={{ flex: 1, color: colors.warning }}>
+            {unit} ≈ {perUnit} {t.common.kcal} · {format(t.plan.burnPerSet, { kcal: perSet })}
+          </Caption>
+        </View>
+        <View style={styles.step}>
           <Icon name={ex.countingMode === 'timed' ? 'timer' : 'cpu'} size={16} color={colors.textDim} />
-          <Caption style={{ flex: 1 }}>{ex.muscles.join(' · ')}</Caption>
+          <Caption style={{ flex: 1 }}>{ex.muscles.map((m) => t.muscles[m]).join(' · ')}</Caption>
           {[1, 2, 3].map((i) => (
             <Icon key={i} name="star" size={12} color={i <= ex.difficulty ? colors.warning : colors.cardBorder} />
           ))}

@@ -12,7 +12,7 @@
 | Дуу | `expo-speech` (mn-MN / en-US) |
 | Мэдэгдэл | `expo-notifications` (өдөр тутмын сануулга + сэдэлжүүлэх мэдэгдэл) |
 | Өгөгдөл | `zustand` + `AsyncStorage` (offline-first) · сонголтоор Supabase синк |
-| Тест | Jest (`jest-expo`) — домэйн логик 40 тест |
+| Тест | Jest (`jest-expo`) — домэйн логик 44 тест |
 
 ## Бүтэц
 
@@ -20,8 +20,8 @@
 src/
   domain/                 # Цэвэр логик (native хамааралгүй, unit тесттэй)
     pose/                 #   17-цэгт pose модель, геометр, framing, rep-engine, analyzers
-    plan/                 #   Дасгалын сан (12 дасгал) + 7–30 хоногийн хөтөлбөр үүсгэгч
-    profile/              #   BMI, зорилтот жин, BMR/илчлэг (Mifflin–St Jeor)
+    plan/                 #   Дасгалын сан (46 дасгал, булчин бүрт 5+) + 7–30 хоногийн хөтөлбөр үүсгэгч, илчлэгийн тооцоо
+    profile/              #   BMI, зорилтот жин, BMR/илчлэг (Mifflin–St Jeor), зорилтот жинд хүрэх хугацаа (timeline.ts)
     gamification/         #   XP/түвшин, badge, streak
   services/
     pose/usePoseDetector  #   VisionCamera frame processor → TFLite → keypoints (JS рүү зөвхөн 51 тоо дамжина)
@@ -29,10 +29,11 @@ src/
     notifications/        #   Сануулга, motivational quotes
     cloud/supabase        #   Сонголтот синк (зөвхөн профайл + статистик)
   store/                  # zustand persist stores (user, plan, progress, settings)
-  features/               # Дэлгэцүүд: onboarding, plan, workout, progress, settings
+  features/               # Дэлгэцүүд: onboarding, plan, library (булчингаар), workout, progress, settings
   components/             # PoseOverlay (SVG), FramingGuide, StickFigureDemo, Confetti, UI kit
   i18n/                   # Монгол (үндсэн) + Англи
 assets/models/            # movenet_singlepose_lightning_int8.tflite (2.9 MB, апп дотор багцлагдана)
+assets/exercises/         # 46 зураг (jpg) + 46 давтагдах демо клип (mp4, ~70KB) — scripts/gen-exercise-assets.js map үүсгэнэ
 ```
 
 ### Хөдөлгөөн танилтын урсгал
@@ -90,4 +91,8 @@ npm test
 - Монгол хэлний TTS дуу төхөөрөмж дээр суулгаагүй бол систем англи/өгөгдмөл дуугаар унших боломжтой; Тохиргооноос хэл солино.
 - `burpee`, `mountain_climber` зэрэг нэг камераар найдвартай тоолоход хэцүү дасгалууд хугацаагаар (timed) явна; бусад 9 дасгал AI тоолуур/hold горимтой.
 - Хэрэглэгч AI буруу тоолсон гэж үзвэл `+1 гараар` товчоор засах боломжтой.
-- UI icon-ууд `components/Icon.tsx` (SVG line icons), emoji ашиглаагүй. Дасгалын зургууд Higgsfield платформ дээр (Soul 2.0 + GPT Image 2.5) үүсгэсэн, 1024×768 JPEG, нийт ~250KB.
+- UI icon-ууд `components/Icon.tsx` (SVG line icons), emoji ашиглаагүй.
+- Дасгалын медиа: 46 зураг (GPT Image 2.5, Higgsfield платформ) + дасгал бүрийн 4 секундын давтагдах демо клип (Seedance 2.0 Mini, зургаас видео). Клипүүд GIF-ийн оронд 512×384 H.264 (`expo-video`, дуугүй, автомат давтагдана): GIF-ээр 46 × ~2.7MB = 125MB болох байсныг 4.6MB болгосон. `scripts/encode-exercise-videos.sh` эх клипийг дахин шахна; GIF хэрэгтэй бол ffmpeg-ээр ижил pipeline ашиглана.
+- Дасгалын нэр англиар (Squat, Push-up…), заавар/зөвлөгөө монгол, англи хоёр хэлээр.
+- Илчлэг: дасгал бүрийн 1 удаа/1 сек-ийн ккал (`kcalPerUnit`, хэрэглэгчийн жингээр масштаблана) → өдрийн болон долоо хоногийн шатаах илчлэг хөтөлбөр, өдрийн дэлгэрэнгүй, дасгалын дэлгэц дээр харагдана.
+- Зорилтот жин: `estimateTargetTimeline` — өдрийн илчлэгийн зөрүү + дасгалаар шатаах илчлэгээс долоо хоногийн хурд (аюулгүй хязгаартай: турахад ≤1% жин/7 хоног, масс нэмэхэд ≤0.5 кг/7 хоног), хэдэн долоо хоног, ямар огноогоор хүрэх, санал болгох хөтөлбөрийн урт (7–30 хоног) × давталтын тоо.

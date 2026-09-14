@@ -5,6 +5,9 @@ import { Body, Button, Caption, Card, Row, Screen, Title } from '@/components/ui
 import { Icon } from '@/components/Icon';
 import { ExerciseThumb } from '@/components/ExerciseImage';
 import { getExercise } from '@/domain/plan/exercises';
+import { estimateDayCalories, estimateExerciseCalories } from '@/domain/plan/generator';
+import { format } from '@/i18n';
+import { useUserStore } from '@/store/useUserStore';
 import { useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
 import { colors, spacing } from '@/theme';
@@ -14,6 +17,7 @@ export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetai
   const plan = usePlanStore((s) => s.plan);
   const completed = usePlanStore((s) => s.completedDates);
   const updateVolume = usePlanStore((s) => s.updateVolume);
+  const weightKg = useUserStore((s) => s.profile?.weightKg ?? 70);
   const day = plan?.days.find((d) => d.dayIndex === route.params.dayIndex);
   if (!day) return null;
 
@@ -31,6 +35,12 @@ export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetai
         <Body muted>{t.plan.restDayHint}</Body>
       ) : (
         <>
+          <Row>
+            <Icon name="flame" color={colors.warning} size={18} />
+            <Body style={{ color: colors.warning, fontWeight: '700' }}>
+              {t.plan.burn}: {format(t.plan.burnApprox, { kcal: estimateDayCalories(day, weightKg) })}
+            </Body>
+          </Row>
           {day.exercises.map((pe) => {
             const ex = getExercise(pe.exerciseId);
             const name = t.exercises[pe.exerciseId as keyof typeof t.exercises]?.name ?? pe.exerciseId;
@@ -40,7 +50,10 @@ export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetai
                 <Pressable onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: pe.exerciseId, dayIndex: day.dayIndex, exerciseKey: pe.key })}>
                   <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
                     <ExerciseThumb exerciseId={ex.id} size={56} />
-                    <Body style={{ fontWeight: '700', flex: 1 }}>{name}</Body>
+                    <View style={{ flex: 1 }}>
+                      <Body style={{ fontWeight: '700' }}>{name}</Body>
+                      <Caption>{format(t.plan.burnApprox, { kcal: estimateExerciseCalories(pe, weightKg) })}</Caption>
+                    </View>
                     <Icon name={ex.countingMode === 'timed' ? 'timer' : 'cpu'} size={18} color={colors.textDim} />
                   </Row>
                 </Pressable>

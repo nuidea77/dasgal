@@ -23,6 +23,7 @@
     "expo-speech": "~57.0.3",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
+    "expo-video": "~57.0.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
@@ -55,7 +56,8 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "tsc --noEmit && jest --silent"
+    "lint": "tsc --noEmit && jest --silent",
+    "assets:exercises": "node scripts/gen-exercise-assets.js"
   },
   "private": true,
   "jest": {

@@ -8,6 +8,7 @@ import {
   hipAngle,
   kneeAngle,
   shoulderWidth,
+  torsoLean,
   torsoLength,
   visible,
 } from './common';
@@ -21,7 +22,13 @@ export type AnalyzerId =
   | 'glute_bridge'
   | 'plank'
   | 'wall_sit'
-  | 'high_knees';
+  | 'high_knees'
+  | 'wall_pushup'
+  | 'pike_pushup'
+  | 'tricep_dip'
+  | 'crunch'
+  | 'leg_raise'
+  | 'hip_hinge';
 
 export function createSquatAnalyzer(): ExerciseAnalyzer {
   return new AngleRepCounter({
@@ -167,6 +174,75 @@ export function createWallSitAnalyzer(): ExerciseAnalyzer {
   });
 }
 
+/** Elbow-driven presses with no body-line requirement (wall push-up, pike push-up, floor dips). */
+function createElbowRepAnalyzer(active: number, rest: number): ExerciseAnalyzer {
+  return new AngleRepCounter({
+    metric: elbowAngle,
+    activeDirection: 'decreasing',
+    activeThreshold: active,
+    restThreshold: rest,
+    partialThreshold: rest - 20,
+    partialFeedback: 'go_lower',
+  });
+}
+
+export function createWallPushupAnalyzer(): ExerciseAnalyzer {
+  return createElbowRepAnalyzer(100, 150);
+}
+
+export function createPikePushupAnalyzer(): ExerciseAnalyzer {
+  return createElbowRepAnalyzer(100, 150);
+}
+
+export function createTricepDipAnalyzer(): ExerciseAnalyzer {
+  return createElbowRepAnalyzer(95, 150);
+}
+
+/** Crunch: a smaller trunk curl than a sit-up. */
+export function createCrunchAnalyzer(): ExerciseAnalyzer {
+  return new AngleRepCounter({
+    metric: hipAngle,
+    activeDirection: 'decreasing',
+    activeThreshold: 135,
+    restThreshold: 155,
+    partialThreshold: 148,
+    partialFeedback: 'lift_higher',
+  });
+}
+
+/** Lying leg raise: hip angle closes as the legs come up. */
+export function createLegRaiseAnalyzer(): ExerciseAnalyzer {
+  return new AngleRepCounter({
+    metric: hipAngle,
+    activeDirection: 'decreasing',
+    activeThreshold: 100,
+    restThreshold: 160,
+    partialThreshold: 135,
+    partialFeedback: 'lift_higher',
+  });
+}
+
+/** Hip hinge (good morning): torso lean from vertical grows as the athlete bows forward. */
+export function createHipHingeAnalyzer(): ExerciseAnalyzer {
+  return new AngleRepCounter({
+    metric: torsoLean,
+    activeDirection: 'increasing',
+    activeThreshold: 55,
+    restThreshold: 20,
+    partialThreshold: 40,
+    partialFeedback: 'go_lower',
+    formChecks: [
+      {
+        when: 'active',
+        check: (pose) => {
+          const k = kneeAngle(pose);
+          return k !== null && k < 140 ? 'full_extension' : null;
+        },
+      },
+    ],
+  });
+}
+
 const FACTORIES: Record<AnalyzerId, () => ExerciseAnalyzer> = {
   squat: createSquatAnalyzer,
   pushup: createPushupAnalyzer,
@@ -177,6 +253,12 @@ const FACTORIES: Record<AnalyzerId, () => ExerciseAnalyzer> = {
   plank: createPlankAnalyzer,
   wall_sit: createWallSitAnalyzer,
   high_knees: createHighKneesAnalyzer,
+  wall_pushup: createWallPushupAnalyzer,
+  pike_pushup: createPikePushupAnalyzer,
+  tricep_dip: createTricepDipAnalyzer,
+  crunch: createCrunchAnalyzer,
+  leg_raise: createLegRaiseAnalyzer,
+  hip_hinge: createHipHingeAnalyzer,
 };
 
 export function createAnalyzer(id: AnalyzerId): ExerciseAnalyzer {

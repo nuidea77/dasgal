@@ -5,8 +5,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/app/navigation/types';
 import { Body, Button, Caption, Card, Row, Screen, Subheading, Title } from '@/components/ui';
 import { Icon, IconName } from '@/components/Icon';
-import { todayIso } from '@/domain/plan/generator';
-import { getExercise } from '@/domain/plan/exercises';
+import { estimateDayCalories, estimateWeeklyCalories, todayIso } from '@/domain/plan/generator';
+import { format } from '@/i18n';
 import { useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
 import { useUserStore } from '@/store/useUserStore';
@@ -47,6 +47,10 @@ export function PlanScreen() {
                 {todayDay.exercises.length} {t.common.exercises} · {t.plan.estimated} {todayDay.estimatedMinutes} {t.common.minutes} ·{' '}
                 {t.plan[`intensity_${todayDay.intensity}` as const]}
               </Body>
+              <Row>
+                <Icon name="flame" color={colors.warning} size={18} />
+                <Body style={{ color: colors.warning, fontWeight: '700' }}>{format(t.plan.burnApprox, { kcal: estimateDayCalories(todayDay, profile.weightKg) })}</Body>
+              </Row>
               {completed[todayDay.date] ? (
                 <Row>
                   <Icon name="check" color={colors.accent} size={18} />
@@ -81,12 +85,10 @@ export function PlanScreen() {
           );
         })}
       </View>
-      <Caption>
-        {plan.days
-          .filter((d) => d.kind === 'workout')
-          .slice(0, 1)
-          .map((d) => d.exercises.map((e) => t.exercises[e.exerciseId as keyof typeof t.exercises]?.name ?? getExercise(e.exerciseId).id).join(', '))}
-      </Caption>
+      <Row>
+        <Icon name="flame" color={colors.textDim} size={16} />
+        <Caption>{format(t.plan.weeklyBurn, { kcal: estimateWeeklyCalories(plan, profile.weightKg) })}</Caption>
+      </Row>
       <Button title={t.plan.regenerate} variant="secondary" onPress={() => generate(profile)} />
     </Screen>
   );

@@ -44,7 +44,7 @@ export function SwapExerciseScreen({ route, navigation }: RootScreenProps<'SwapE
                 <View style={{ flex: 1, gap: 4 }}>
                   <Body style={{ fontWeight: '700' }}>{t.exercises[id as keyof typeof t.exercises]?.name ?? id}</Body>
                   <Row>
-                    <Text style={styles.meta}>{cand.muscles.join(' · ')}</Text>
+                    <Text style={styles.meta}>{cand.muscles.map((m) => t.muscles[m]).join(' · ')}</Text>
                     <Difficulty level={cand.difficulty} />
                     <Icon name={cand.countingMode === 'timed' ? 'timer' : 'cpu'} size={14} color={colors.textDim} />
                   </Row>

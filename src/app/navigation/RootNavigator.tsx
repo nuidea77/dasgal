@@ -17,6 +17,7 @@ import { SwapExerciseScreen } from '@/features/plan/SwapExerciseScreen';
 import { WorkoutSessionScreen } from '@/features/workout/WorkoutSessionScreen';
 import { WorkoutCompleteScreen } from '@/features/workout/WorkoutCompleteScreen';
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
+import { LibraryScreen } from '@/features/library/LibraryScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { MainTabParamList, OnboardingStackParamList, RootStackParamList } from './types';
 
@@ -41,6 +42,7 @@ function MainTabs() {
       }}
     >
       <Tabs.Screen name="Plan" component={PlanScreen} options={{ title: t.tabs.plan, tabBarIcon: ({ color }) => <Icon name="calendar" color={color} /> }} />
+      <Tabs.Screen name="Library" component={LibraryScreen} options={{ title: t.tabs.library, tabBarIcon: ({ color }) => <Icon name="dumbbell" color={color} /> }} />
       <Tabs.Screen name="Progress" component={ProgressScreen} options={{ title: t.tabs.progress, tabBarIcon: ({ color }) => <Icon name="trophy" color={color} /> }} />
       <Tabs.Screen name="Settings" component={SettingsScreen} options={{ title: t.tabs.settings, tabBarIcon: ({ color }) => <Icon name="settings" color={color} /> }} />
     </Tabs.Navigator>

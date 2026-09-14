@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { OnboardingScreenProps } from '@/app/navigation/types';
-import { Body, Button, Caption, Card, Row, Screen, Stat, Title } from '@/components/ui';
+import { Body, Button, Caption, Card, Row, Screen, Stat, Subheading, Title } from '@/components/ui';
 import { healthyWeightRange } from '@/domain/profile/bmi';
+import { estimateTargetTimeline } from '@/domain/profile/timeline';
+import { estimateWeeklyCalories, generatePlan, todayIso } from '@/domain/plan/generator';
+import { Icon } from '@/components/Icon';
+import { format } from '@/i18n';
 import { useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
 import { useUserStore } from '@/store/useUserStore';
@@ -14,8 +18,17 @@ export function AssessmentResultScreen(_: OnboardingScreenProps<'AssessmentResul
   const assessment = useUserStore((s) => s.assessment);
   const completeOnboarding = useUserStore((s) => s.completeOnboarding);
   const generate = usePlanStore((s) => s.generate);
+  const setProfile = useUserStore((s) => s.setProfile);
 
-  if (!profile || !assessment) return null;
+  const timeline = useMemo(() => {
+    if (!profile || !assessment) return null;
+    const preview = generatePlan(profile, { seed: 1, startDate: todayIso() });
+    const weeklyBurn = estimateWeeklyCalories(preview, profile.weightKg);
+    const dailyDelta = assessment.calories.recommended - assessment.calories.maintenance;
+    return { ...estimateTargetTimeline(profile.weightKg, assessment.targetWeightKg, profile.goal, dailyDelta, weeklyBurn, todayIso()), weeklyBurn };
+  }, [profile, assessment]);
+
+  if (!profile || !assessment || !timeline) return null;
   const range = healthyWeightRange(profile.heightCm);
   const categoryColor = assessment.category === 'normal' ? colors.accent : colors.warning;
 
@@ -50,6 +63,36 @@ export function AssessmentResultScreen(_: OnboardingScreenProps<'AssessmentResul
           <Stat label="F" value={`${assessment.calories.fat} g`} />
         </Row>
       </Card>
+      <Card style={{ borderColor: colors.accent }}>
+        <Row>
+          <Icon name="trending" color={colors.accent} size={20} />
+          <Subheading>{t.onboarding.timelineTitle}</Subheading>
+        </Row>
+        {timeline.weeks === 0 ? (
+          <Body muted>{t.onboarding.alreadyAtTarget}</Body>
+        ) : (
+          <>
+            <Row style={{ justifyContent: 'space-between' }}>
+              <Text style={styles.weeks}>{format(t.onboarding.timelineWeeks, { weeks: timeline.weeks })}</Text>
+              <Caption>{format(t.onboarding.timelineDate, { date: timeline.targetDate })}</Caption>
+            </Row>
+            <Caption>
+              {format(t.onboarding.deltaKg, { kg: timeline.deltaKg > 0 ? `+${timeline.deltaKg}` : timeline.deltaKg })} · {format(t.onboarding.weeklyRate, { kg: timeline.weeklyRateKg })}
+            </Caption>
+            <Caption>{format(t.onboarding.workoutBurn, { kcal: timeline.weeklyBurn })}</Caption>
+            <Body style={{ color: colors.accent, fontWeight: '700' }}>
+              {format(t.onboarding.suggestedProgram, { days: timeline.suggestedProgramDays, cycles: timeline.cycles })}
+            </Body>
+            {profile.programDays !== timeline.suggestedProgramDays ? (
+              <Button
+                title={format(t.onboarding.applySuggestion, { days: timeline.suggestedProgramDays })}
+                variant="secondary"
+                onPress={() => setProfile({ ...profile, programDays: timeline.suggestedProgramDays })}
+              />
+            ) : null}
+          </>
+        )}
+      </Card>
       <Card>
         <Body>
           {t.onboarding[`goal_${profile.goal}` as const]} · {t.onboarding[`level_${profile.level}` as const]}
@@ -66,5 +109,6 @@ export function AssessmentResultScreen(_: OnboardingScreenProps<'AssessmentResul
 
 const styles = StyleSheet.create({
   big: { fontSize: 40, fontWeight: '900' },
+  weeks: { fontSize: 26, fontWeight: '800', color: colors.text },
   divider: { height: 1, backgroundColor: colors.cardBorder, marginVertical: spacing.sm },
 });

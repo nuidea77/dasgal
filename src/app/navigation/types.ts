@@ -20,6 +20,7 @@ export type RootStackParamList = {
 
 export type MainTabParamList = {
   Plan: undefined;
+  Library: undefined;
   Progress: undefined;
   Settings: undefined;
 };

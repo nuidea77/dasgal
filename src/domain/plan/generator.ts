@@ -55,10 +55,10 @@ function pick<T>(rnd: () => number, list: T[], n: number, exclude: Set<string> =
 }
 
 const FOCUS_POOLS: Record<Exclude<PlanDay['focus'], 'rest'>, string[]> = {
-  full_body: ['squat', 'pushup', 'knee_pushup', 'lunge', 'plank', 'glute_bridge', 'jumping_jack', 'situp', 'burpee'],
-  lower: ['squat', 'lunge', 'glute_bridge', 'wall_sit', 'high_knees', 'jumping_jack'],
-  upper_core: ['pushup', 'knee_pushup', 'plank', 'situp', 'mountain_climber', 'glute_bridge'],
-  cardio: ['jumping_jack', 'high_knees', 'mountain_climber', 'burpee', 'squat', 'lunge'],
+  full_body: ['squat', 'pushup', 'knee_pushup', 'lunge', 'plank', 'glute_bridge', 'jumping_jack', 'situp', 'burpee', 'good_morning', 'squat_thrust', 'inchworm', 'superman', 'bird_dog'],
+  lower: ['squat', 'sumo_squat', 'jump_squat', 'lunge', 'reverse_lunge', 'side_lunge', 'glute_bridge', 'single_leg_bridge', 'wall_sit', 'calf_raise', 'donkey_kick', 'fire_hydrant', 'high_knees'],
+  upper_core: ['pushup', 'knee_pushup', 'wide_pushup', 'diamond_pushup', 'wall_pushup', 'pike_pushup', 'floor_tricep_dip', 'plank', 'side_plank', 'situp', 'crunch', 'leg_raise', 'dead_bug', 'bicycle_crunch', 'russian_twist', 'superman', 'swimmer', 'plank_up_down'],
+  cardio: ['jumping_jack', 'high_knees', 'butt_kicks', 'mountain_climber', 'burpee', 'squat_thrust', 'plank_jack', 'skater_jump', 'jump_squat', 'bear_crawl'],
 };
 
 function maxDifficulty(level: FitnessLevel): number {
@@ -145,9 +145,17 @@ export function generatePlan(profile: UserProfile, options: GenerateOptions = {}
       .map((id) => getExercise(id))
       .filter((ex) => ex.difficulty <= maxDiff)
       .filter((ex) => !(lowImpact && (ex.id === 'burpee' || ex.id === 'high_knees')));
-    // Avoid both pushup variants in the same session.
-    const chosen = pick(rnd, pool, exerciseCount, new Set(), (e) => e.id);
-    const filtered = chosen.filter((e, idx, arr) => !(e.id === 'knee_pushup' && arr.some((o) => o.id === 'pushup')));
+    // Avoid two push-up variants in the same session.
+    const chosen = pick(rnd, pool, exerciseCount + 2, new Set(), (e) => e.id);
+    const seenPushup = { value: false };
+    const filtered = chosen
+      .filter((e) => {
+        const isPushup = e.id.endsWith('pushup');
+        if (isPushup && seenPushup.value) return false;
+        if (isPushup) seenPushup.value = true;
+        return true;
+      })
+      .slice(0, exerciseCount);
 
     const exercises: PlannedExercise[] = filtered.map((ex, idx) => {
       const sets = intensity === 'hard' ? 4 : 3;
@@ -189,6 +197,22 @@ export function estimateMinutes(exercises: PlannedExercise[]): number {
     seconds += pe.sets * (work + pe.restSeconds);
   }
   return Math.max(5, Math.round(seconds / 60));
+}
+
+/** Calories a planned exercise burns for this user (all sets). */
+export function estimateExerciseCalories(pe: PlannedExercise, weightKg: number): number {
+  return estimateCalories([{ exerciseId: pe.exerciseId, count: pe.sets * pe.target }], weightKg);
+}
+
+/** Calories a whole plan day burns for this user. */
+export function estimateDayCalories(day: PlanDay, weightKg: number): number {
+  return day.exercises.reduce((sum, pe) => sum + estimateExerciseCalories(pe, weightKg), 0);
+}
+
+/** Average calories burned per week over the plan. */
+export function estimateWeeklyCalories(plan: WorkoutPlan, weightKg: number): number {
+  const total = plan.days.reduce((sum, d) => sum + estimateDayCalories(d, weightKg), 0);
+  return Math.round((total / plan.days.length) * 7);
 }
 
 export function estimateCalories(exercises: Array<{ exerciseId: string; count: number }>, weightKg: number): number {

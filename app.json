@@ -83,7 +83,8 @@
         }
       ],
       "expo-image",
-      "expo-font"
+      "expo-font",
+      "expo-video"
     ],
     "extra": {
       "eas": {}
