@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Dimensions, Easing, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { OnboardingScreenProps } from '@/app/navigation/types';
 import { Body, Button, Caption, Screen, Title } from '@/components/ui';
-import { StickFigureDemo } from '@/components/StickFigureDemo';
+import { CameraHero } from '@/components/CameraHero';
 import { Icon, IconName } from '@/components/Icon';
-import { getExercise } from '@/domain/plan/exercises';
 import { useT } from '@/i18n';
 import { colors, fonts, radius, spacing, typography } from '@/theme';
 
@@ -15,9 +14,10 @@ const BULLETS: Array<{ key: 'welcomeBullet1' | 'welcomeBullet2' | 'welcomeBullet
   { key: 'welcomeBullet3', icon: 'award' },
 ];
 
+const HERO_WIDTH = Math.min(340, Dimensions.get('window').width - spacing.md * 2);
+
 export function WelcomeScreen({ navigation }: OnboardingScreenProps<'Welcome'>) {
   const t = useT();
-  const squat = getExercise('squat');
   const fade = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -33,7 +33,9 @@ export function WelcomeScreen({ navigation }: OnboardingScreenProps<'Welcome'>) 
           <Text style={styles.tagline}>{t.onboarding.welcomeTagline}</Text>
           <Body muted style={{ textAlign: 'center' }}>{t.onboarding.welcomeSubtitle}</Body>
         </View>
-        <StickFigureDemo rest={squat.demo.rest} active={squat.demo.active} size={200} />
+        <Animated.View style={{ opacity: fade, transform: [{ scale: fade.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) }] }}>
+          <CameraHero width={HERO_WIDTH} />
+        </Animated.View>
         <Animated.View style={{ gap: spacing.sm, opacity: fade, transform: [{ translateY: fade.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] }}>
           {BULLETS.map((b) => (
             <View key={b.key} style={styles.bullet}>

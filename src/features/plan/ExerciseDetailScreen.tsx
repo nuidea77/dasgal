@@ -31,7 +31,6 @@ export function ExerciseDetailScreen({ route, navigation }: RootScreenProps<'Exe
       ) : (
         <StickFigureDemo rest={ex.demo.rest} active={ex.demo.active} size={260} />
       )}
-      <StickFigureDemo rest={ex.demo.rest} active={ex.demo.active} size={140} />
       <Card>
         <Subheading>{t.plan.howTo}</Subheading>
         {info?.steps.map((s, i) => (
