@@ -12,6 +12,7 @@ export type OnboardingStackParamList = {
   Level: undefined;
   TargetWeight: undefined;
   Pace: undefined;
+  TargetMuscles: undefined;
   ExercisePick: undefined;
   Profile: undefined;
   AssessmentResult: undefined;

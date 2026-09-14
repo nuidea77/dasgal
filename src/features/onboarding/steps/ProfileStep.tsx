@@ -29,7 +29,7 @@ export function ProfileStep({ navigation }: OnboardingScreenProps<'Profile'>) {
     <OnboardingStep
       title={t.onboarding.profileTitle}
       subtitle={t.onboarding.profileSubtitle}
-      step={10}
+      step={11}
       total={TOTAL_STEPS}
       onBack={() => navigation.goBack()}
       onNext={finish}

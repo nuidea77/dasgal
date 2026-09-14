@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { FitnessLevel, Goal, Pace, Sex, UserProfile } from '@/domain/profile/types';
 import { HeightUnit, WeightUnit } from '@/domain/profile/units';
+import { MuscleGroup } from '@/domain/plan/exercises';
 
 export interface Draft {
   name: string;
@@ -12,6 +13,8 @@ export interface Draft {
   level: FitnessLevel;
   targetWeightKg: number;
   pace: Pace;
+  /** Muscle groups the user wants to train; seeds the exercise picks. */
+  targetMuscles: MuscleGroup[];
   preferredExercises: string[];
   programDays: number;
   daysPerWeek: number;
@@ -32,7 +35,7 @@ export const useOnboardingDraft = create<DraftState>((set, get) => ({
   // Pickers open on these averages, so nothing starts blank.
   draft: {
     name: '', age: 28, sex: 'male', heightCm: 170, weightKg: 70, goal: 'tone', level: 'beginner',
-    targetWeightKg: 70, pace: 'moderate', preferredExercises: [], programDays: 28, daysPerWeek: 4,
+    targetWeightKg: 70, pace: 'moderate', targetMuscles: ['chest', 'core', 'legs'], preferredExercises: [], programDays: 28, daysPerWeek: 4,
     heightUnit: 'cm', weightUnit: 'kg',
   },
   update: (patch) => set({ draft: { ...get().draft, ...patch } }),

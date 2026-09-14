@@ -14,6 +14,7 @@ import { HeightStep } from '@/features/onboarding/steps/HeightStep';
 import { GoalStep } from '@/features/onboarding/steps/GoalStep';
 import { LevelStep } from '@/features/onboarding/steps/LevelStep';
 import { TargetWeightStep } from '@/features/onboarding/steps/TargetWeightStep';
+import { TargetMusclesStep } from '@/features/onboarding/steps/TargetMusclesStep';
 import { ProfileStep } from '@/features/onboarding/steps/ProfileStep';
 import { PaceScreen } from '@/features/onboarding/PaceScreen';
 import { ExercisePickScreen } from '@/features/onboarding/ExercisePickScreen';
@@ -84,6 +85,7 @@ export function RootNavigator() {
           <Onboarding.Screen name="Level" component={LevelStep} />
           <Onboarding.Screen name="TargetWeight" component={TargetWeightStep} />
           <Onboarding.Screen name="Pace" component={PaceScreen} />
+          <Onboarding.Screen name="TargetMuscles" component={TargetMusclesStep} />
           <Onboarding.Screen name="ExercisePick" component={ExercisePickScreen} />
           <Onboarding.Screen name="Profile" component={ProfileStep} />
           <Onboarding.Screen name="AssessmentResult" component={AssessmentResultScreen} />

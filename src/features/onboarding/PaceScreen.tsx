@@ -37,7 +37,7 @@ export function PaceScreen({ navigation }: OnboardingScreenProps<'Pace'>) {
       onBack={() => navigation.goBack()}
       onNext={() => {
         choose(draft.pace);
-        navigation.navigate('ExercisePick');
+        navigation.navigate('TargetMuscles');
       }}
     >
       {options.map((o) => {

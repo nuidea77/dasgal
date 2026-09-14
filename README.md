@@ -33,6 +33,7 @@ src/
   components/             # PoseOverlay (SVG), FramingGuide, StickFigureDemo, Confetti, UI kit
   i18n/                   # Монгол (үндсэн) + Англи
 assets/models/            # movenet_singlepose_lightning_int8.tflite (2.9 MB, апп дотор багцлагдана)
+assets/body/              # body-front.png, body-back.png — AI-аар үүсгэсэн анатомийн дүрс; булчингийн гэрэлтэх бүсүүд `domain/plan/bodyRegions.ts`-д SVG эллипсээр
 assets/exercises/         # 46 зураг (jpg) + 46 давтагдах демо клип (mp4, ~70KB) — scripts/gen-exercise-assets.js map үүсгэнэ
 ```
 
