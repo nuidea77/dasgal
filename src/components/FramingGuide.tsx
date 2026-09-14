@@ -48,7 +48,7 @@ export function FramingGuide({ width, height, status }: Props) {
 const styles = StyleSheet.create({
   banner: {
     position: 'absolute',
-    top: spacing.lg + 40,
+    top: 128,
     alignSelf: 'center',
     paddingVertical: 10,
     paddingHorizontal: 18,
