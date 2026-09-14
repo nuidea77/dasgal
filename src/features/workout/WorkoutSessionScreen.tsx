@@ -14,6 +14,7 @@ import { ExerciseAnalyzer } from '@/domain/pose/repEngine';
 import { mapPoseToView } from '@/domain/pose/viewMapping';
 import { FeedbackKey } from '@/domain/pose/feedback';
 import { estimateCalories, todayIso } from '@/domain/plan/generator';
+import { sessionProgress } from '@/domain/workout/completion';
 import { getExercise } from '@/domain/plan/exercises';
 import { format, useT } from '@/i18n';
 import { usePoseDetector } from '@/services/pose/usePoseDetector';
@@ -158,22 +159,25 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
       avgQuality,
       intensity: day.intensity,
     };
+    // Quitting early still banks the work and its XP, but the day only ticks
+    // off once enough of the plan was actually done.
+    const progress = sessionProgress(day.exercises, records);
     const scheduled = plan?.days.filter((d) => d.kind === 'workout').map((d) => d.date) ?? [];
-    const completedCount = Object.keys(usePlanStore.getState().completedDates).length + 1;
-    const programFinished = completedCount >= scheduled.length;
+    const completedCount = Object.keys(usePlanStore.getState().completedDates).length + (progress.complete ? 1 : 0);
+    const programFinished = progress.complete && completedCount >= scheduled.length;
     const outcome = recordWorkout(record, scheduled, programFinished);
     if (outcome.xpGained === 0) {
       // Nothing was done: leave the day open and go back without a celebration.
       navigation.popToTop();
       return;
     }
-    markCompleted(day.date, record.id);
+    if (progress.complete) markCompleted(day.date, record.id);
     void clearMotivationForToday(record.date);
     if (useSettingsStore.getState().healthSyncEnabled) {
       // Fire-and-forget: the health store must never delay the celebration.
       void syncWorkout({ ...record, xp: outcome.xpGained }, t.complete.healthTitle);
     }
-    navigation.replace('WorkoutComplete', { record: { ...record, xp: outcome.xpGained }, outcome });
+    navigation.replace('WorkoutComplete', { record: { ...record, xp: outcome.xpGained }, outcome, progress });
   }, [state, day, profile, plan, recordWorkout, markCompleted, navigation, t]);
 
   useEffect(() => () => voiceCoach.stop(), []);
@@ -198,10 +202,23 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
     [detector.pose, viewSize, detector.imageSize, settings.cameraPosition],
   );
 
+  // Leaving early is not all-or-nothing: what was done can be banked, and the
+  // dialog says exactly how much that is before anything is thrown away.
   const quit = () => {
-    Alert.alert(t.workout.finish, t.workout.quitConfirm, [
-      { text: t.common.cancel, style: 'cancel' },
-      { text: t.workout.finish, style: 'destructive', onPress: () => navigation.goBack() },
+    const { totalReps, totalHoldSeconds } = summarize(state);
+    const progress = day ? sessionProgress(day.exercises, state.records.filter(Boolean)) : null;
+    const percent = Math.round((progress?.ratio ?? 0) * 100);
+    const didSomething = totalReps > 0 || totalHoldSeconds > 0;
+    const body = didSomething
+      ? format(t.workout.quitProgress, { percent, reps: totalReps + Math.round(totalHoldSeconds / 3) }) +
+        '\n\n' +
+        (progress?.complete ? t.workout.quitCountsDone : t.workout.quitCountsPartial)
+      : t.workout.quitNothing;
+    dispatch({ type: 'PAUSE' });
+    Alert.alert(t.workout.quitTitle, body, [
+      { text: t.workout.quitResume, style: 'cancel', onPress: () => dispatch({ type: 'RESUME' }) },
+      ...(didSomething ? [{ text: t.workout.quitSave, onPress: () => dispatch({ type: 'FINISH' as const }) }] : []),
+      { text: t.workout.quitDiscard, style: 'destructive' as const, onPress: () => navigation.goBack() },
     ]);
   };
 

@@ -8,6 +8,9 @@ import { Icon } from '@/components/Icon';
 import { AwardMedal } from '@/components/AwardMedal';
 import { BADGES } from '@/domain/gamification/badges';
 import { styleFor } from '@/domain/gamification/awards';
+import { workoutsSince, xpSince } from '@/domain/gamification/leaderboard';
+import { weekStart } from '@/domain/plan/weekStrip';
+import { todayIso } from '@/domain/plan/generator';
 import { levelProgress } from '@/domain/gamification/levels';
 import { nextTitle, titleForLevel } from '@/domain/gamification/titles';
 import { titleName } from '@/features/gamification/titleName';
@@ -23,6 +26,9 @@ export function ProgressScreen() {
   const lp = levelProgress(p.xp);
   const owned = new Set(p.badges);
   const history = [...p.history].reverse().slice(0, 20);
+  const weekFrom = weekStart(todayIso());
+  const weekXp = xpSince(p.history, weekFrom);
+  const weekWorkouts = workoutsSince(p.history, weekFrom);
   const totalCalories = p.history.reduce((a, r) => a + r.calories, 0);
 
   return (
@@ -54,6 +60,21 @@ export function ProgressScreen() {
           <Stat label={t.progress.calories} value={`${totalCalories}`} />
         </Row>
       </Card>
+      <Pressable onPress={() => navigation.navigate('Leaderboard')}>
+        <Card>
+          <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+            <Row style={{ flexWrap: 'nowrap', flex: 1 }}>
+              <Icon name="trophy" size={20} color={colors.warning} />
+              <View style={{ flex: 1 }}>
+                <Body strong>{t.leaderboard.title}</Body>
+                <Caption>{format(t.leaderboard.workoutsCount, { n: weekWorkouts })} · {weekXp} XP</Caption>
+              </View>
+            </Row>
+            <Caption style={{ color: colors.primary }}>{t.leaderboard.seeAll}</Caption>
+          </Row>
+        </Card>
+      </Pressable>
+
       <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
         <Subheading>{t.awards.title}</Subheading>
         <Caption>{format(t.awards.count, { n: p.badges.length, total: BADGES.length })}</Caption>

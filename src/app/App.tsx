@@ -42,8 +42,7 @@ function useForegroundTasks() {
         }
       }
       if (s.cloudSyncEnabled) {
-        const profile = useUserStore.getState().profile;
-        const deviceId = `${profile?.name ?? 'anon'}-${profile?.age ?? 0}-${profile?.heightCm ?? 0}`;
+        const { profile, deviceId } = useUserStore.getState();
         void syncToCloud(deviceId, profile, useProgressStore.getState().history);
       }
     };

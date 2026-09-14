@@ -14,3 +14,27 @@ create table if not exists workouts (
 );
 
 create index if not exists workouts_device_date on workouts(device_id, date);
+
+-- Leaderboard. Only a display name and aggregate stats are exposed; the
+-- underlying tables stay private.
+create or replace view leaderboard_all as
+select
+  p.device_id as id,
+  coalesce(nullif(p.profile->>'name', ''), 'Anon') as name,
+  coalesce(sum((w.record->>'xp')::int), 0) as xp,
+  count(w.id) as workouts
+from profiles p
+left join workouts w on w.device_id = p.device_id
+group by p.device_id, name;
+
+create or replace view leaderboard_week as
+select
+  p.device_id as id,
+  coalesce(nullif(p.profile->>'name', ''), 'Anon') as name,
+  coalesce(sum((w.record->>'xp')::int), 0) as xp,
+  count(w.id) as workouts
+from profiles p
+left join workouts w
+  on w.device_id = p.device_id
+ and w.date >= date_trunc('week', current_date)::date
+group by p.device_id, name;
