@@ -13,6 +13,8 @@ interface SettingsState {
   cameraPosition: 'front' | 'back';
   showSkeleton: boolean;
   cloudSyncEnabled: boolean;
+  /** Push finished workouts to Apple Health / Health Connect. */
+  healthSyncEnabled: boolean;
   update: (patch: Partial<Omit<SettingsState, 'update'>>) => void;
 }
 
@@ -28,6 +30,7 @@ export const useSettingsStore = create<SettingsState>()(
       cameraPosition: 'front',
       showSkeleton: true,
       cloudSyncEnabled: false,
+      healthSyncEnabled: false,
       update: (patch) => set(patch),
     }),
     { name: 'dasgal.settings', storage: asyncStorage },

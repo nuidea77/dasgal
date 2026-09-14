@@ -8,6 +8,7 @@ import { Icon } from '@/components/Icon';
 import { ProgressRing } from '@/components/ProgressRing';
 import { MotivationBanner } from './MotivationBanner';
 import { WeekStrip } from './WeekStrip';
+import { useHealthToday } from '@/services/health/useHealthToday';
 import { buildStrip } from '@/domain/plan/weekStrip';
 import { estimateDayCalories, estimateWeeklyCalories, todayIso } from '@/domain/plan/generator';
 import { format, useT } from '@/i18n';
@@ -23,6 +24,7 @@ export function PlanScreen() {
   const completed = usePlanStore((s) => s.completedDates);
   const profile = useUserStore((s) => s.profile);
   const generate = usePlanStore((s) => s.generate);
+  const healthToday = useHealthToday();
   const applyMissedPenalties = useProgressStore((s) => s.applyMissedPenalties);
   const lastPenalty = useProgressStore((s) => s.lastPenalty);
   const dismissPenaltyNotice = useProgressStore((s) => s.dismissPenaltyNotice);
@@ -144,6 +146,20 @@ export function PlanScreen() {
               <Button title={t.plan.edit} variant="ghost" onPress={() => navigation.navigate('DayDetail', { dayIndex: todayDay.dayIndex })} />
             </>
           )}
+        </Card>
+      ) : null}
+
+      {healthToday ? (
+        <Card>
+          <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+            <Row>
+              <Icon name="heart" color={colors.accent} size={18} />
+              <Body muted>{t.plan.healthToday}</Body>
+            </Row>
+            <Body style={{ fontWeight: '700' }}>
+              {format(t.plan.healthTotals, { steps: healthToday.steps, kcal: healthToday.activeCalories })}
+            </Body>
+          </Row>
         </Card>
       ) : null}
 

@@ -19,6 +19,7 @@ import { format, useT } from '@/i18n';
 import { usePoseDetector } from '@/services/pose/usePoseDetector';
 import { voiceCoach } from '@/services/voice/coach';
 import { clearMotivationForToday } from '@/services/notifications/scheduler';
+import { syncWorkout } from '@/services/health/sync';
 import { usePlanStore } from '@/store/usePlanStore';
 import { useProgressStore } from '@/store/useProgressStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
@@ -168,8 +169,12 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
     }
     markCompleted(day.date, record.id);
     void clearMotivationForToday(record.date);
+    if (useSettingsStore.getState().healthSyncEnabled) {
+      // Fire-and-forget: the health store must never delay the celebration.
+      void syncWorkout({ ...record, xp: outcome.xpGained }, t.complete.healthTitle);
+    }
     navigation.replace('WorkoutComplete', { record: { ...record, xp: outcome.xpGained }, outcome });
-  }, [state, day, profile, plan, recordWorkout, markCompleted, navigation]);
+  }, [state, day, profile, plan, recordWorkout, markCompleted, navigation, t]);
 
   useEffect(() => () => voiceCoach.stop(), []);
 

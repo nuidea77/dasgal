@@ -23,7 +23,9 @@
         "NSCameraUsageDescription": "Дасгалын хөдөлгөөнийг таньж тоолохын тулд камер ашиглана. Дүрс бичлэг зөвхөн утсан дээр боловсруулагдаж, хадгалагдахгүй, хаашаа ч илгээгдэхгүй.",
         "UIBackgroundModes": [
           "remote-notification"
-        ]
+        ],
+        "NSHealthShareUsageDescription": "Алхам, шатаасан илчлэгийг харуулахын тулд Apple Health-ээс уншина.",
+        "NSHealthUpdateUsageDescription": "Дуусгасан дасгалыг илчлэгийн хамт Apple Health-д бичнэ. Камерын дүрс илгээгдэхгүй."
       }
     },
     "android": {
@@ -37,7 +39,11 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.POST_NOTIFICATIONS",
-        "android.permission.SCHEDULE_EXACT_ALARM"
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.health.WRITE_EXERCISE",
+        "android.permission.health.WRITE_ACTIVE_CALORIES_BURNED",
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_ACTIVE_CALORIES_BURNED"
       ],
       "predictiveBackGestureEnabled": false
     },
@@ -84,7 +90,16 @@
       ],
       "expo-image",
       "expo-font",
-      "expo-video"
+      "expo-video",
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "Алхам, шатаасан илчлэгийг харуулахын тулд Apple Health-ээс уншина.",
+          "NSHealthUpdateUsageDescription": "Дуусгасан дасгалыг илчлэгийн хамт Apple Health-д бичнэ. Камерын дүрс илгээгдэхгүй.",
+          "background": false
+        }
+      ],
+      "react-native-health-connect"
     ],
     "extra": {
       "eas": {}

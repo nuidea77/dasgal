@@ -13,6 +13,8 @@ const WEB_STUBS = {
   'vision-camera-resize-plugin': path.resolve(__dirname, 'src/web-stubs/resize-plugin.ts'),
   'react-native-worklets-core': path.resolve(__dirname, 'src/web-stubs/worklets-core.ts'),
   'expo-notifications': path.resolve(__dirname, 'src/web-stubs/expo-notifications.ts'),
+  '@kingstinct/react-native-healthkit': path.resolve(__dirname, 'src/web-stubs/healthkit.ts'),
+  'react-native-health-connect': path.resolve(__dirname, 'src/web-stubs/health-connect.ts'),
 };
 const defaultResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {

@@ -6,7 +6,6 @@ import { Body, Button, Card, Row, Screen, Stat, Title } from '@/components/ui';
 import { Confetti } from '@/components/Confetti';
 import { Icon } from '@/components/Icon';
 import { AwardMedal } from '@/components/AwardMedal';
-import { BADGES } from '@/domain/gamification/badges';
 import { paletteFor } from '@/domain/gamification/awards';
 import { titleForLevel } from '@/domain/gamification/titles';
 import { XpBar } from '@/components/XpBar';
@@ -76,11 +75,10 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
           <Card style={{ borderColor: colors.warning }}>
             <Text style={styles.levelUp}>{t.complete.newBadge}</Text>
             {outcome.newBadges.map((id) => {
-              const def = BADGES.find((b) => b.id === id);
               const info = t.badges[id as keyof typeof t.badges];
               return (
                 <Row key={id}>
-                  <AwardMedal icon={def?.icon ?? 'award'} palette={paletteFor(id)} size={54} />
+                  <AwardMedal badgeId={id} palette={paletteFor(id)} size={54} />
                   <View style={{ flex: 1 }}>
                     <Body style={{ fontWeight: '700' }}>{info?.name ?? id}</Body>
                     <Body muted>{info?.description}</Body>

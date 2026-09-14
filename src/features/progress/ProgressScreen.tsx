@@ -69,7 +69,7 @@ export function ProgressScreen() {
               accessibilityRole="button"
               onPress={() => navigation.navigate('Award', { badgeIds: BADGES.map((x) => x.id), index: i, after: 'back' })}
             >
-              <AwardMedal icon={b.icon} palette={paletteFor(b.id)} size={64} locked={!has} />
+              <AwardMedal badgeId={b.id} palette={paletteFor(b.id)} size={64} locked={!has} />
               <Text style={[styles.badgeName, !has && { color: colors.textDim }]} numberOfLines={2}>{info?.name ?? b.id}</Text>
             </Pressable>
           );

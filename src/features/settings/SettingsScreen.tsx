@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Switch, View } from 'react-native';
 import Constants from 'expo-constants';
 import { Body, Button, Caption, Card, Chip, Row, Screen, Subheading, Title } from '@/components/ui';
@@ -6,6 +6,7 @@ import { Icon } from '@/components/Icon';
 import { useI18nStore, useT } from '@/i18n';
 import { scheduleDailyReminder, scheduleMotivation } from '@/services/notifications/scheduler';
 import { isCloudConfigured } from '@/services/cloud/supabase';
+import { HealthStatus, health } from '@/services/health';
 import { usePlanStore } from '@/store/usePlanStore';
 import { useProgressStore } from '@/store/useProgressStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
@@ -19,6 +20,27 @@ export function SettingsScreen() {
   const s = useSettingsStore();
   const setLanguage = useI18nStore((st) => st.setLanguage);
   const completed = usePlanStore((st) => st.completedDates);
+  const [healthStatus, setHealthStatus] = useState<HealthStatus>('unavailable');
+
+  useEffect(() => {
+    void health.status().then(setHealthStatus);
+  }, []);
+
+  // Turning the switch on walks the user through the OS permission sheet; it
+  // only stays on if access was actually granted.
+  const toggleHealth = useCallback(
+    async (on: boolean) => {
+      if (!on) {
+        s.update({ healthSyncEnabled: false });
+        return;
+      }
+      const next = await health.requestAccess();
+      setHealthStatus(next);
+      s.update({ healthSyncEnabled: next === 'granted' });
+      if (next === 'needs_setup') await health.openSettings();
+    },
+    [s],
+  );
 
   useEffect(() => {
     void scheduleDailyReminder(s.reminderEnabled, s.reminderHour, s.reminderMinute);
@@ -85,6 +107,21 @@ export function SettingsScreen() {
           <Switch value={s.cloudSyncEnabled && isCloudConfigured()} disabled={!isCloudConfigured()} onValueChange={(v) => s.update({ cloudSyncEnabled: v })} trackColor={{ true: colors.primary }} />
         </Row>
         <Caption>{t.settings.cloudSyncHint}</Caption>
+      </Card>
+      <Card>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <Body>{health.id === 'apple' ? t.settings.appleHealth : health.id === 'google' ? t.settings.healthConnect : t.settings.healthSync}</Body>
+          <Switch
+            value={s.healthSyncEnabled && healthStatus === 'granted'}
+            disabled={healthStatus === 'unavailable'}
+            onValueChange={(v) => void toggleHealth(v)}
+            trackColor={{ true: colors.primary }}
+          />
+        </Row>
+        <Caption>{healthStatus === 'unavailable' ? t.settings.healthUnavailable : t.settings.healthHint}</Caption>
+        {healthStatus === 'granted' ? (
+          <Button title={t.settings.healthManage} variant="ghost" onPress={() => void health.openSettings()} />
+        ) : null}
       </Card>
       <Card>
         <Row>

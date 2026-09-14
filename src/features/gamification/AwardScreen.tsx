@@ -6,7 +6,6 @@ import Svg, { Defs, Ellipse, Polygon, RadialGradient, Stop } from 'react-native-
 import { RootScreenProps } from '@/app/navigation/types';
 import { AwardMedal, LOCKED_METAL } from '@/components/AwardMedal';
 import { Icon } from '@/components/Icon';
-import { BADGES } from '@/domain/gamification/badges';
 import { formatAwardDate, paletteFor } from '@/domain/gamification/awards';
 import { useI18nStore, useT } from '@/i18n';
 import { useProgressStore } from '@/store/useProgressStore';
@@ -114,19 +113,16 @@ export function AwardScreen({ route, navigation }: RootScreenProps<'Award'>) {
         style={styles.pager}
         contentContainerStyle={{ alignItems: 'center' }}
       >
-        {ids.map((id) => {
-          const def = BADGES.find((b) => b.id === id);
-          return (
+        {ids.map((id) => (
             <View key={id} style={styles.page}>
               <Animated.View style={{ opacity: medal, transform: [{ scale: medal }, { translateY: float }] }}>
-                <AwardMedal icon={def?.icon ?? 'award'} palette={paletteFor(id)} size={MEDAL} locked={!owned.includes(id)} />
+                <AwardMedal badgeId={id} palette={paletteFor(id)} size={MEDAL} locked={!owned.includes(id)} />
               </Animated.View>
               <Animated.View style={{ opacity: enter, marginTop: -MEDAL * 0.14 }}>
                 <Pedestal id={id} color={owned.includes(id) ? paletteFor(id).glow : LOCKED_METAL.glow} width={MEDAL * 1.25} />
               </Animated.View>
             </View>
-          );
-        })}
+        ))}
       </ScrollView>
 
       <Animated.View style={[styles.body, { opacity: text, transform: [{ translateY: text.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
