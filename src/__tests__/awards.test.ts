@@ -1,14 +1,15 @@
-import { AWARD_METAL, formatAwardDate, metalFor, paletteFor, sortByEarned } from '@/domain/gamification/awards';
+import { AWARD_STYLES, LOCKED_STYLE, formatAwardDate, sortByEarned, styleFor } from '@/domain/gamification/awards';
 import { BADGES } from '@/domain/gamification/badges';
 
 describe('awards', () => {
-  it('assigns a metal to every badge', () => {
-    for (const b of BADGES) expect(AWARD_METAL[b.id]).toBeDefined();
+  it('gives every badge its own enamel colour', () => {
+    const accents = BADGES.map((b) => AWARD_STYLES[b.id]?.accent);
+    for (const a of accents) expect(a).toMatch(/^#[0-9A-F]{6}$/);
+    expect(new Set(accents).size).toBe(BADGES.length);
   });
 
-  it('falls back to bronze for an unknown badge', () => {
-    expect(metalFor('nope')).toBe('bronze');
-    expect(paletteFor('nope')).toBe(paletteFor('first_workout'));
+  it('falls back to the locked style for an unknown badge', () => {
+    expect(styleFor('nope')).toBe(LOCKED_STYLE);
   });
 
   it('formats the earned date per language', () => {

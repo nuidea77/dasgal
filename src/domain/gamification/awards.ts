@@ -1,55 +1,40 @@
 /**
- * Award (badge) presentation model: which metal a badge is struck in and how
+ * Award presentation model: the enamel colour each award is struck in and how
  * its earned date reads in each language. Kept out of the UI so it can be
- * unit-tested and reused by both the celebration screen and the awards grid.
+ * unit-tested and reused by the ceremony screen and the awards grid alike.
+ *
+ * The colours mirror the artwork in assets/medals — each badge is a silver
+ * bezel around a coloured enamel face, and the stage lighting on the award
+ * screen is tinted to match.
  */
-export type AwardMetal = 'bronze' | 'silver' | 'gold' | 'platinum';
-
-export interface MetalPalette {
-  /** Outer rim, darkest. */
-  rim: string;
-  /** Body gradient, dark → light → dark gives the rounded metal look. */
-  dark: string;
-  base: string;
-  light: string;
-  /** Specular highlight. */
-  shine: string;
-  /** Spotlight colour behind the medal. */
-  glow: string;
-  /** Text tint for the award name. */
+export interface AwardStyle {
+  /** Enamel face colour; drives the stage glow and halo. */
+  accent: string;
+  /** Lighter tint used for the award name. */
   text: string;
 }
 
-export const METALS: Record<AwardMetal, MetalPalette> = {
-  bronze: { rim: '#6B3A1B', dark: '#8A4A22', base: '#C2763A', light: '#F0B37E', shine: '#FFE3C7', glow: '#C2763A', text: '#F0B37E' },
-  silver: { rim: '#5A6376', dark: '#79839A', base: '#B9C2D4', light: '#E8EDF7', shine: '#FFFFFF', glow: '#A9B4CC', text: '#E8EDF7' },
-  gold: { rim: '#7A5310', dark: '#A9781C', base: '#E0A82E', light: '#FFDE8A', shine: '#FFF6D6', glow: '#E0A82E', text: '#FFDE8A' },
-  platinum: { rim: '#2C6B63', dark: '#2E8F80', base: '#3FC7AE', light: '#9FF3E2', shine: '#E6FFFA', glow: '#3FC7AE', text: '#9FF3E2' },
+export const AWARD_STYLES: Record<string, AwardStyle> = {
+  first_workout: { accent: '#FFC531', text: '#FFE39A' },
+  streak_3: { accent: '#FF7A2F', text: '#FFC49A' },
+  streak_7: { accent: '#FF3D8B', text: '#FFA3C7' },
+  streak_14: { accent: '#2F9BFF', text: '#A6D3FF' },
+  streak_30: { accent: '#8B5CF6', text: '#C9B4FF' },
+  squats_100: { accent: '#14C4A4', text: '#8CEBD9' },
+  pushups_100: { accent: '#FF5C5C', text: '#FFAFAF' },
+  reps_1000: { accent: '#FFB020', text: '#FFDA96' },
+  hard_day: { accent: '#E63950', text: '#FF9FAC' },
+  perfect_form: { accent: '#3DDC84', text: '#A5F3C6' },
+  program_complete: { accent: '#C94FFF', text: '#E5B4FF' },
+  level_5: { accent: '#4DA3FF', text: '#B3D8FF' },
+  level_10: { accent: '#A855F7', text: '#DCBBFF' },
 };
 
-/** Which metal each badge is struck in — rarer achievements get richer metal. */
-export const AWARD_METAL: Record<string, AwardMetal> = {
-  first_workout: 'bronze',
-  streak_3: 'bronze',
-  squats_100: 'bronze',
-  pushups_100: 'bronze',
-  hard_day: 'silver',
-  streak_7: 'silver',
-  perfect_form: 'silver',
-  level_5: 'silver',
-  streak_14: 'gold',
-  reps_1000: 'gold',
-  level_10: 'gold',
-  streak_30: 'platinum',
-  program_complete: 'platinum',
-};
+/** An award that has not been earned yet: no colour, just cold steel. */
+export const LOCKED_STYLE: AwardStyle = { accent: '#5A6486', text: '#9AA3C2' };
 
-export function metalFor(badgeId: string): AwardMetal {
-  return AWARD_METAL[badgeId] ?? 'bronze';
-}
-
-export function paletteFor(badgeId: string): MetalPalette {
-  return METALS[metalFor(badgeId)];
+export function styleFor(badgeId: string): AwardStyle {
+  return AWARD_STYLES[badgeId] ?? LOCKED_STYLE;
 }
 
 const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -69,7 +54,7 @@ export function formatAwardDate(iso: string | undefined, lang: 'mn' | 'en'): str
   return `${y}.${mo}.${d}`;
 }
 
-/** Awards are shown newest-first in the grid but earn-order in the celebration pager. */
+/** Awards are paged through in the order they were earned. */
 export function sortByEarned(badgeIds: string[], earnedAt: Record<string, string>): string[] {
   return [...badgeIds].sort((a, b) => (earnedAt[a] ?? '').localeCompare(earnedAt[b] ?? ''));
 }

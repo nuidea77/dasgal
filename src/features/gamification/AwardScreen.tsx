@@ -4,9 +4,9 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, Ellipse, Polygon, RadialGradient, Stop } from 'react-native-svg';
 import { RootScreenProps } from '@/app/navigation/types';
-import { AwardMedal, LOCKED_METAL } from '@/components/AwardMedal';
+import { AwardMedal } from '@/components/AwardMedal';
 import { Icon } from '@/components/Icon';
-import { formatAwardDate, paletteFor } from '@/domain/gamification/awards';
+import { LOCKED_STYLE, formatAwardDate, styleFor } from '@/domain/gamification/awards';
 import { useI18nStore, useT } from '@/i18n';
 import { useProgressStore } from '@/store/useProgressStore';
 import { colors, radius, spacing } from '@/theme';
@@ -57,7 +57,7 @@ export function AwardScreen({ route, navigation }: RootScreenProps<'Award'>) {
 
   const current = ids[Math.min(page, ids.length - 1)] ?? ids[0] ?? 'first_workout';
   const info = t.badges[current as keyof typeof t.badges];
-  const palette = owned.includes(current) ? paletteFor(current) : LOCKED_METAL;
+  const style = owned.includes(current) ? styleFor(current) : LOCKED_STYLE;
   const date = formatAwardDate(earnedAt[current], language);
   const isOwned = owned.includes(current);
 
@@ -85,7 +85,7 @@ export function AwardScreen({ route, navigation }: RootScreenProps<'Award'>) {
   return (
     <View style={styles.root}>
       <LinearGradient colors={['#05070F', '#101736', '#05070F']} locations={[0, 0.55, 1]} style={StyleSheet.absoluteFill} />
-      <Spotlight color={palette.glow} progress={enter} scale={glowScale} />
+      <Spotlight color={style.accent} progress={enter} scale={glowScale} />
 
       <View style={styles.stage}>
       <Animated.View style={[styles.header, { opacity: text }]}>
@@ -116,10 +116,10 @@ export function AwardScreen({ route, navigation }: RootScreenProps<'Award'>) {
         {ids.map((id) => (
             <View key={id} style={styles.page}>
               <Animated.View style={{ opacity: medal, transform: [{ scale: medal }, { translateY: float }] }}>
-                <AwardMedal badgeId={id} palette={paletteFor(id)} size={MEDAL} locked={!owned.includes(id)} />
+                <AwardMedal badgeId={id} style={styleFor(id)} size={MEDAL} locked={!owned.includes(id)} />
               </Animated.View>
               <Animated.View style={{ opacity: enter, marginTop: -MEDAL * 0.14 }}>
-                <Pedestal id={id} color={owned.includes(id) ? paletteFor(id).glow : LOCKED_METAL.glow} width={MEDAL * 1.25} />
+                <Pedestal id={id} color={owned.includes(id) ? styleFor(id).accent : LOCKED_STYLE.accent} width={MEDAL * 1.25} />
               </Animated.View>
             </View>
         ))}
@@ -128,7 +128,7 @@ export function AwardScreen({ route, navigation }: RootScreenProps<'Award'>) {
       <Animated.View style={[styles.body, { opacity: text, transform: [{ translateY: text.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
         <Text style={styles.congrats}>
           {isOwned ? t.awards.congrats : t.awards.howTo}
-          <Text style={[styles.congratsStrong, { color: palette.text }]}>{` ${info?.description ?? ''}`}</Text>
+          <Text style={[styles.congratsStrong, { color: style.text }]}>{` ${info?.description ?? ''}`}</Text>
         </Text>
         {ids.length > 1 ? (
           <View style={styles.dots}>

@@ -7,7 +7,7 @@ import { Body, Caption, Card, ProgressBar, Row, Screen, Stat, Subheading, Title 
 import { Icon } from '@/components/Icon';
 import { AwardMedal } from '@/components/AwardMedal';
 import { BADGES } from '@/domain/gamification/badges';
-import { paletteFor } from '@/domain/gamification/awards';
+import { styleFor } from '@/domain/gamification/awards';
 import { levelProgress } from '@/domain/gamification/levels';
 import { nextTitle, titleForLevel } from '@/domain/gamification/titles';
 import { titleName } from '@/features/gamification/titleName';
@@ -69,7 +69,7 @@ export function ProgressScreen() {
               accessibilityRole="button"
               onPress={() => navigation.navigate('Award', { badgeIds: BADGES.map((x) => x.id), index: i, after: 'back' })}
             >
-              <AwardMedal badgeId={b.id} palette={paletteFor(b.id)} size={64} locked={!has} />
+              <AwardMedal badgeId={b.id} style={styleFor(b.id)} size={64} locked={!has} />
               <Text style={[styles.badgeName, !has && { color: colors.textDim }]} numberOfLines={2}>{info?.name ?? b.id}</Text>
             </Pressable>
           );

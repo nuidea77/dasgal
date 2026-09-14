@@ -6,7 +6,7 @@ import { Body, Button, Card, Row, Screen, Stat, Title } from '@/components/ui';
 import { Confetti } from '@/components/Confetti';
 import { Icon } from '@/components/Icon';
 import { AwardMedal } from '@/components/AwardMedal';
-import { paletteFor } from '@/domain/gamification/awards';
+import { styleFor } from '@/domain/gamification/awards';
 import { titleForLevel } from '@/domain/gamification/titles';
 import { XpBar } from '@/components/XpBar';
 import { titleName } from '@/features/gamification/titleName';
@@ -78,7 +78,7 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
               const info = t.badges[id as keyof typeof t.badges];
               return (
                 <Row key={id}>
-                  <AwardMedal badgeId={id} palette={paletteFor(id)} size={54} />
+                  <AwardMedal badgeId={id} style={styleFor(id)} size={54} />
                   <View style={{ flex: 1 }}>
                     <Body style={{ fontWeight: '700' }}>{info?.name ?? id}</Body>
                     <Body muted>{info?.description}</Body>
