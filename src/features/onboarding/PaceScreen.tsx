@@ -4,7 +4,7 @@ import { OnboardingScreenProps } from '@/app/navigation/types';
 import { Body, Button, Caption, Row, Screen, Title } from '@/components/ui';
 import { Icon, IconName } from '@/components/Icon';
 import { paceOptions } from '@/domain/profile/timeline';
-import { todayIso } from '@/domain/plan/generator';
+import { dailyBurnTarget, todayIso } from '@/domain/plan/generator';
 import { Pace } from '@/domain/profile/types';
 import { format, useT } from '@/i18n';
 import { colors, radius, spacing } from '@/theme';
@@ -12,18 +12,14 @@ import { useOnboardingDraft } from './draft';
 
 const ICONS: Record<Pace, IconName> = { easy: 'heart', moderate: 'activity', hard: 'flame' };
 
-/** Rough calories burned per session, used only to rank the three pace timelines. */
-function sessionKcal(weightKg: number, level: string): number {
-  const base = level === 'beginner' ? 110 : level === 'intermediate' ? 150 : 190;
-  return Math.round(base * (weightKg / 70));
-}
 
 export function PaceScreen({ navigation }: OnboardingScreenProps<'Pace'>) {
   const t = useT();
   const { draft, update } = useOnboardingDraft();
   const weight = Number(draft.weightKg);
   const target = Number(draft.targetWeightKg);
-  const options = useMemo(() => paceOptions(weight, target, draft.goal, sessionKcal(weight, draft.level), todayIso()), [weight, target, draft.goal, draft.level]);
+  // Sessions are sized to burn 300–600 kcal (pace-dependent), so the timeline uses that target.
+  const options = useMemo(() => paceOptions(weight, target, draft.goal, (pace) => dailyBurnTarget(pace, 4, 'moderate'), todayIso()), [weight, target, draft.goal]);
 
   const choose = (pace: Pace) => {
     const opt = options.find((o) => o.pace === pace)!;
@@ -55,6 +51,7 @@ export function PaceScreen({ navigation }: OnboardingScreenProps<'Pace'>) {
             <Row>
               <Caption>{format(t.onboarding.paceDays, { n: o.daysPerWeek })}</Caption>
               <Caption>· {format(t.onboarding.paceKcal, { kcal: o.calorieDelta > 0 ? `+${o.calorieDelta}` : o.calorieDelta })}</Caption>
+              <Caption>· {format(t.onboarding.paceBurn, { kcal: dailyBurnTarget(o.pace, 4, 'moderate') })}</Caption>
             </Row>
           </Pressable>
         );

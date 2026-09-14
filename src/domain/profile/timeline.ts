@@ -78,6 +78,13 @@ export function estimateTargetTimeline(
 }
 
 /** The three pace options side by side, for the user to choose from. */
-export function paceOptions(weightKg: number, targetKg: number, goal: Goal, workoutKcalPerSession: number, startDate: string): TargetTimeline[] {
-  return PACES.map((pace) => estimateTargetTimeline(weightKg, targetKg, goal, pace, workoutKcalPerSession, startDate));
+export function paceOptions(
+  weightKg: number,
+  targetKg: number,
+  goal: Goal,
+  workoutKcalPerSession: number | ((pace: Pace) => number),
+  startDate: string,
+): TargetTimeline[] {
+  const kcal = (pace: Pace) => (typeof workoutKcalPerSession === 'function' ? workoutKcalPerSession(pace) : workoutKcalPerSession);
+  return PACES.map((pace) => estimateTargetTimeline(weightKg, targetKg, goal, pace, kcal(pace), startDate));
 }

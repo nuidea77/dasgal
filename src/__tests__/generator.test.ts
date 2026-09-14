@@ -1,4 +1,4 @@
-import { estimateCalories, generatePlan, swapExercise, updateExerciseVolume } from '@/domain/plan/generator';
+import { DAILY_BURN_RANGE, MAX_SESSION_MINUTES, estimateCalories, estimateDayCalories, generatePlan, swapExercise, updateExerciseVolume } from '@/domain/plan/generator';
 import { getExercise } from '@/domain/plan/exercises';
 import { UserProfile } from '@/domain/profile/types';
 
@@ -21,13 +21,14 @@ describe('plan generator', () => {
     const workouts = plan.days.filter((d) => d.kind === 'workout');
     const first = workouts[0]!;
     const preferred = new Set(base.preferredExercises);
-    expect(first.exercises.every((e) => preferred.has(e.exerciseId))).toBe(true);
-    // Same exercise, later in the program → more reps.
-    const squatTargets = workouts.filter((d) => d.intensity === 'moderate').flatMap((d) => d.exercises.filter((e) => e.exerciseId === 'squat').map((e) => e.target));
-    expect(squatTargets.length).toBeGreaterThan(2);
-    expect(squatTargets[squatTargets.length - 1]!).toBeGreaterThan(squatTargets[0]!);
-    // Sets grow with the weeks.
-    expect(workouts[workouts.length - 1]!.exercises[0]!.sets).toBeGreaterThan(first.exercises[0]!.sets);
+    // Preferred exercises come first; the library only tops up once they are exhausted.
+    expect(first.exercises.filter((e) => preferred.has(e.exerciseId)).length).toBeGreaterThanOrEqual(4);
+    expect(first.exercises.slice(0, 4).every((e) => preferred.has(e.exerciseId))).toBe(true);
+    // Later in the program → the session burns more (sized to a rising calorie target).
+    const moderateDays = workouts.filter((d) => d.intensity === 'moderate');
+    const firstBurn = estimateDayCalories(moderateDays[0]!, 72);
+    const lastBurn = estimateDayCalories(moderateDays[moderateDays.length - 1]!, 72);
+    expect(lastBurn).toBeGreaterThan(firstBurn);
     // Harder tiers unlock later even for a beginner.
     const lateDifficulty = Math.max(...workouts.slice(-10).flatMap((d) => d.exercises.map((e) => getExercise(e.exerciseId).difficulty)));
     expect(lateDifficulty).toBeGreaterThanOrEqual(2);
@@ -67,12 +68,24 @@ describe('plan generator', () => {
     expect(ids.has('high_knees')).toBe(false);
   });
 
-  it('progresses volume week over week', () => {
-    const plan = generatePlan({ ...base, programDays: 21, preferredExercises: [] }, { startDate: '2026-01-01', seed: 5 });
-    const w1 = plan.days.slice(0, 7).filter((d) => d.kind === 'workout' && d.intensity === 'moderate');
-    const w3 = plan.days.slice(14, 21).filter((d) => d.kind === 'workout' && d.intensity === 'moderate');
-    const avg = (days: typeof w1) => days.flatMap((d) => d.exercises.filter((e) => getExercise(e.exerciseId).countingMode === 'reps_ai').map((e) => e.target)).reduce((a, b, _, arr) => a + b / arr.length, 0);
-    expect(avg(w3)).toBeGreaterThan(avg(w1));
+  it('sizes every workout day to burn 300–600 kcal for the user', () => {
+    for (const pace of ['easy', 'moderate', 'hard'] as const) {
+      for (const weightKg of [55, 82, 110]) {
+        const plan = generatePlan({ ...base, weightKg, pace, programDays: 56 }, { startDate: '2026-01-01', seed: 7 });
+        for (const d of plan.days.filter((x) => x.kind === 'workout')) {
+          const kcal = estimateDayCalories(d, weightKg);
+          // Either the target is met, or the 70-minute session cap was the limit (very light users).
+          expect(kcal >= DAILY_BURN_RANGE.min * 0.9 || d.estimatedMinutes >= MAX_SESSION_MINUTES - 5).toBe(true);
+          expect(kcal).toBeLessThanOrEqual(DAILY_BURN_RANGE.max * 1.15);
+          expect(d.estimatedMinutes).toBeLessThanOrEqual(MAX_SESSION_MINUTES + 10);
+        }
+      }
+    }
+    // Harder pace → higher daily burn.
+    const easy = generatePlan({ ...base, pace: 'easy', programDays: 14 }, { startDate: '2026-01-01', seed: 7 });
+    const hard = generatePlan({ ...base, pace: 'hard', programDays: 14 }, { startDate: '2026-01-01', seed: 7 });
+    const avg = (p: typeof easy) => { const w = p.days.filter((d) => d.kind === 'workout'); return w.reduce((s, d) => s + estimateDayCalories(d, 72), 0) / w.length; };
+    expect(avg(hard)).toBeGreaterThan(avg(easy));
   });
 
   it('swaps an exercise and converts reps↔seconds', () => {
@@ -90,7 +103,7 @@ describe('plan generator', () => {
   it('estimates calories scaled by body weight', () => {
     const light = estimateCalories([{ exerciseId: 'squat', count: 100 }], 50);
     const heavy = estimateCalories([{ exerciseId: 'squat', count: 100 }], 100);
-    expect(heavy).toBe(light * 2);
+    expect(Math.abs(heavy - light * 2)).toBeLessThanOrEqual(1);
     expect(estimateCalories([{ exerciseId: 'nope', count: 10 }], 70)).toBe(0);
   });
 });

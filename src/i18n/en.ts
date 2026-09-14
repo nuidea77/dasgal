@@ -19,7 +19,7 @@ export const en: Translations = {
     levelTitle: 'Current fitness level', level_beginner: 'Beginner', level_intermediate: 'Intermediate', level_advanced: 'Advanced',
     targetWeightTitle: 'Enter your target weight', targetWeightHint: 'Healthy range: {min}–{max} kg. Suggested: {suggested} kg.', targetWeightInput: 'Target weight (kg)',
     paceTitle: 'Choose your pace', paceSubtitle: 'Each pace shows how long it takes to reach your target. Workouts get harder every day.',
-    pace_easy: 'Easy', pace_moderate: 'Moderate', pace_hard: 'Hard', paceWeeks: '{weeks} weeks', paceRate: '{kg} kg / week', paceDays: '{n} workouts per week', paceKcal: '{kcal} kcal per day',
+    pace_easy: 'Easy', pace_moderate: 'Moderate', pace_hard: 'Hard', paceWeeks: '{weeks} weeks', paceRate: '{kg} kg / week', paceDays: '{n} workouts per week', paceKcal: '{kcal} kcal per day', paceBurn: '~{kcal} kcal per workout',
     paceMaintain: '4-week maintenance program', pickTitle: 'Pick your exercises', pickSubtitle: 'Choose only the exercises you want to do. The system sets sets, reps and difficulty.',
     pickMin: 'Pick at least {n} exercises', pickSelected: '{n} selected', pickRecommended: 'Select recommended', pickClear: 'Clear', programLength: 'Program length',
     programDays: 'Program length (days)', daysPerWeek: 'Workouts per week', resultTitle: 'Your assessment',

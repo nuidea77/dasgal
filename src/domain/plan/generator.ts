@@ -1,7 +1,7 @@
-import { FitnessLevel, Goal, UserProfile } from '../profile/types';
+import { FitnessLevel, Goal, Pace, UserProfile } from '../profile/types';
 import { PACE_CONFIG } from '../profile/timeline';
 import { bmiCategory, calculateBmi } from '../profile/bmi';
-import { EXERCISES, Exercise, getExercise } from './exercises';
+import { CIRCUIT_FACTOR, EXERCISES, Exercise, getExercise, REST_MET, SECONDS_PER_REP } from './exercises';
 
 export interface PlannedExercise {
   /** Unique within the day so users can swap/edit individual entries. */
@@ -183,14 +183,43 @@ export function generatePlan(profile: UserProfile, options: GenerateOptions = {}
         restSeconds: intensity === 'hard' ? 45 : profile.level === 'beginner' ? 60 : 40,
       };
     });
+    // Size the session to the day's calorie target; when reps/sets are capped, add more exercises.
+    const kcalTarget = dailyBurnTarget(profile.pace ?? 'moderate', workoutCounter, intensity);
+    let fitted = fitToCalories(exercises, profile.weightKg, kcalTarget);
+    // Extra exercises, in order of preference: the user's picks for this focus, the rest of the
+    // focus pool, the user's other picks, any exercise of the same tier, then one tier harder.
+    const used = new Set(fitted.map((e) => e.exerciseId));
+    const library = Object.values(EXERCISES);
+    const oneTierUp = (ex: Exercise) => ex.difficulty <= maxDiff + 1 && !(lowImpact && (ex.id === 'burpee' || ex.id === 'high_knees' || ex.id === 'jump_squat'));
+    const extras = [
+      ...pick(rnd, preferredPool, MAX_EXERCISES, used, (e) => e.id),
+      ...pick(rnd, focusPool.filter((e) => !preferred.has(e.id)), MAX_EXERCISES, used, (e) => e.id),
+      ...pick(rnd, library.filter((e) => preferred.has(e.id) && allowed(e)), MAX_EXERCISES, used, (e) => e.id),
+      ...pick(rnd, library.filter(allowed), MAX_EXERCISES, used, (e) => e.id),
+      ...pick(rnd, library.filter(oneTierUp), MAX_EXERCISES, used, (e) => e.id),
+    ].filter((e, idx, arr) => arr.findIndex((o) => o.id === e.id) === idx);
+    while (
+      fitted.length < MAX_EXERCISES &&
+      estimateMinutes(fitted) < MAX_SESSION_MINUTES &&
+      estimateDayCalories({ exercises: fitted } as PlanDay, profile.weightKg) < kcalTarget * 0.92
+    ) {
+      const ex = extras.shift();
+      if (!ex) break;
+      const template = fitted[0]!;
+      fitted = fitToCalories(
+        [...fitted, { key: `${i}-${fitted.length}-${ex.id}`, exerciseId: ex.id, sets: template.sets, target: Math.max(5, Math.round(baseReps(profile.level, ex) * progression)), restSeconds: template.restSeconds }],
+        profile.weightKg,
+        kcalTarget,
+      );
+    }
     planDays.push({
       dayIndex: i,
       date,
       kind: 'workout',
       focus,
       intensity,
-      exercises,
-      estimatedMinutes: estimateMinutes(exercises),
+      exercises: fitted,
+      estimatedMinutes: estimateMinutes(fitted),
     });
     workoutCounter += 1;
   }
@@ -208,15 +237,78 @@ export function estimateMinutes(exercises: PlannedExercise[]): number {
   let seconds = 0;
   for (const pe of exercises) {
     const ex = getExercise(pe.exerciseId);
-    const work = ex.countingMode === 'reps_ai' ? pe.target * 3 : pe.target;
-    seconds += pe.sets * (work + pe.restSeconds);
+    const secondsPerRep = ex.muscles.includes('cardio') ? SECONDS_PER_REP.cardio : SECONDS_PER_REP.strength;
+    const work = ex.countingMode === 'reps_ai' ? pe.target * secondsPerRep : pe.target;
+    seconds += pe.sets * work + Math.max(0, pe.sets - 1) * pe.restSeconds + TRANSITION_SECONDS;
   }
   return Math.max(5, Math.round(seconds / 60));
 }
 
-/** Calories a planned exercise burns for this user (all sets). */
+/** Resting between sets in a circuit keeps the heart rate up; kcal per second for this user. */
+function restKcalPerSecond(weightKg: number): number {
+  return ((REST_MET * weightKg) / 3600) * CIRCUIT_FACTOR;
+}
+
+/** Seconds of transition/setup per exercise. */
+const TRANSITION_SECONDS = 30;
+/** Longest session the generator will build. */
+export const MAX_SESSION_MINUTES = 70;
+
+/** Calories a planned exercise burns for this user (all sets, including the rest between sets). */
 export function estimateExerciseCalories(pe: PlannedExercise, weightKg: number): number {
-  return estimateCalories([{ exerciseId: pe.exerciseId, count: pe.sets * pe.target }], weightKg);
+  const work = estimateCalories([{ exerciseId: pe.exerciseId, count: pe.sets * pe.target }], weightKg);
+  const rest = Math.round(pe.restSeconds * Math.max(0, pe.sets - 1) * restKcalPerSecond(weightKg));
+  return work + rest;
+}
+
+/** Daily calorie-burn goal for a workout day. Sessions are sized to hit it (300–600 kcal). */
+export const DAILY_BURN_RANGE = { min: 300, max: 600 } as const;
+
+export function dailyBurnTarget(pace: Pace, workoutIndex: number, intensity: PlanDay['intensity']): number {
+  const base = { easy: 300, moderate: 400, hard: 500 }[pace];
+  let target = base + workoutIndex * 3; // grows ~+3 kcal per workout
+  if (intensity === 'hard') target *= 1.1;
+  if (intensity === 'easy') target *= 0.85; // deload
+  return Math.round(Math.min(DAILY_BURN_RANGE.max, Math.max(DAILY_BURN_RANGE.min, target)));
+}
+
+const REP_LIMITS = { min: 8, max: 25 } as const;
+const SECOND_LIMITS = { min: 20, max: 60 } as const;
+const MAX_SETS = 5;
+const MAX_EXERCISES = 8;
+
+/**
+ * Scales sets/reps (or seconds) so the session burns roughly `targetKcal` for this user:
+ * first the per-set target, then the number of sets. Returns a new list.
+ */
+export function fitToCalories(exercises: PlannedExercise[], weightKg: number, targetKcal: number): PlannedExercise[] {
+  if (exercises.length === 0) return exercises;
+  let list = exercises.map((pe) => ({ ...pe }));
+  const total = () => list.reduce((s, pe) => s + estimateExerciseCalories(pe, weightKg), 0);
+  for (let iter = 0; iter < 6; iter++) {
+    const current = total();
+    if (current <= 0) break;
+    const ratio = targetKcal / current;
+    if (Math.abs(ratio - 1) < 0.05) break;
+    list = list.map((pe) => {
+      const ex = getExercise(pe.exerciseId);
+      const lim = ex.countingMode === 'reps_ai' ? REP_LIMITS : SECOND_LIMITS;
+      return { ...pe, target: Math.round(Math.min(lim.max, Math.max(lim.min, pe.target * ratio))) };
+    });
+    const after = total();
+    if (estimateMinutes(list) >= MAX_SESSION_MINUTES) break;
+    if (after < targetKcal * 0.95) {
+      // Reps are capped → add sets.
+      const canGrow = list.some((pe) => pe.sets < MAX_SETS);
+      if (!canGrow) break;
+      list = list.map((pe) => ({ ...pe, sets: Math.min(MAX_SETS, pe.sets + 1) }));
+    } else if (after > targetKcal * 1.05 && list.every((pe) => pe.sets > 2)) {
+      list = list.map((pe) => ({ ...pe, sets: pe.sets - 1 }));
+    } else {
+      break;
+    }
+  }
+  return list;
 }
 
 /** Calories a whole plan day burns for this user. */
