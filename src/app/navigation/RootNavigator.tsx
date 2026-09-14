@@ -9,6 +9,8 @@ import { colors } from '@/theme';
 import { WelcomeScreen } from '@/features/onboarding/WelcomeScreen';
 import { ProfileFormScreen } from '@/features/onboarding/ProfileFormScreen';
 import { GoalScreen } from '@/features/onboarding/GoalScreen';
+import { PaceScreen } from '@/features/onboarding/PaceScreen';
+import { ExercisePickScreen } from '@/features/onboarding/ExercisePickScreen';
 import { AssessmentResultScreen } from '@/features/onboarding/AssessmentResultScreen';
 import { PlanScreen } from '@/features/plan/PlanScreen';
 import { DayDetailScreen } from '@/features/plan/DayDetailScreen';
@@ -68,6 +70,8 @@ export function RootNavigator() {
           <Onboarding.Screen name="Welcome" component={WelcomeScreen} />
           <Onboarding.Screen name="ProfileForm" component={ProfileFormScreen} />
           <Onboarding.Screen name="Goal" component={GoalScreen} />
+          <Onboarding.Screen name="Pace" component={PaceScreen} />
+          <Onboarding.Screen name="ExercisePick" component={ExercisePickScreen} />
           <Onboarding.Screen name="AssessmentResult" component={AssessmentResultScreen} />
         </Onboarding.Navigator>
       )}

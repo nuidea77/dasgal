@@ -12,20 +12,19 @@ import { usePlanStore } from '@/store/usePlanStore';
 import { useUserStore } from '@/store/useUserStore';
 import { colors, spacing } from '@/theme';
 
-export function AssessmentResultScreen(_: OnboardingScreenProps<'AssessmentResult'>) {
+export function AssessmentResultScreen({ navigation }: OnboardingScreenProps<'AssessmentResult'>) {
   const t = useT();
   const profile = useUserStore((s) => s.profile);
   const assessment = useUserStore((s) => s.assessment);
   const completeOnboarding = useUserStore((s) => s.completeOnboarding);
   const generate = usePlanStore((s) => s.generate);
-  const setProfile = useUserStore((s) => s.setProfile);
 
   const timeline = useMemo(() => {
     if (!profile || !assessment) return null;
     const preview = generatePlan(profile, { seed: 1, startDate: todayIso() });
     const weeklyBurn = estimateWeeklyCalories(preview, profile.weightKg);
-    const dailyDelta = assessment.calories.recommended - assessment.calories.maintenance;
-    return { ...estimateTargetTimeline(profile.weightKg, assessment.targetWeightKg, profile.goal, dailyDelta, weeklyBurn, todayIso()), weeklyBurn };
+    const perSession = Math.round(weeklyBurn / Math.max(1, profile.daysPerWeek));
+    return { ...estimateTargetTimeline(profile.weightKg, assessment.targetWeightKg, profile.goal, profile.pace, perSession, todayIso()), weeklyBurn };
   }, [profile, assessment]);
 
   if (!profile || !assessment || !timeline) return null;
@@ -81,15 +80,9 @@ export function AssessmentResultScreen(_: OnboardingScreenProps<'AssessmentResul
             </Caption>
             <Caption>{format(t.onboarding.workoutBurn, { kcal: timeline.weeklyBurn })}</Caption>
             <Body style={{ color: colors.accent, fontWeight: '700' }}>
-              {format(t.onboarding.suggestedProgram, { days: timeline.suggestedProgramDays, cycles: timeline.cycles })}
+              {t.onboarding[`pace_${profile.pace}` as const]} · {format(t.onboarding.suggestedProgram, { days: profile.programDays, perWeek: profile.daysPerWeek })}
             </Body>
-            {profile.programDays !== timeline.suggestedProgramDays ? (
-              <Button
-                title={format(t.onboarding.applySuggestion, { days: timeline.suggestedProgramDays })}
-                variant="secondary"
-                onPress={() => setProfile({ ...profile, programDays: timeline.suggestedProgramDays })}
-              />
-            ) : null}
+            <Button title={t.onboarding.changePace} variant="ghost" onPress={() => navigation.navigate('Pace')} />
           </>
         )}
       </Card>
@@ -98,7 +91,7 @@ export function AssessmentResultScreen(_: OnboardingScreenProps<'AssessmentResul
           {t.onboarding[`goal_${profile.goal}` as const]} · {t.onboarding[`level_${profile.level}` as const]}
         </Body>
         <Caption>
-          {profile.programDays} {t.common.day.toLowerCase()} · {profile.daysPerWeek}×/7
+          {profile.programDays} {t.common.day.toLowerCase()} · {profile.daysPerWeek}×/7 · {profile.preferredExercises.length} {t.common.exercises}
         </Caption>
       </Card>
       <View style={{ flex: 1 }} />

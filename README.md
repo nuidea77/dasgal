@@ -72,8 +72,8 @@ npm test
 
 | Шаардлага | Хаана |
 |---|---|
-| Профайл, BMI, зорилтот жин, илчлэг | `domain/profile/bmi.ts`, `features/onboarding/*` |
-| 7–30 хоногийн хөтөлбөр, өдрийн илчлэг | `domain/plan/generator.ts` (прогресс +10%/долоо хоног, deload, BMI/наснаас хамаарсан low-impact) |
+| Профайл, BMI, зорилтот жин (хэрэглэгч оруулна), хэмнэл (амархан/дунд/хүнд → хугацаа), дасгал сонголт | `domain/profile/bmi.ts`, `domain/profile/timeline.ts`, `features/onboarding/*` |
+| Зорилтод хүртэлх хөтөлбөр (30 хоногийн хязгааргүй, 1 жил хүртэл), өдрийн илчлэг | `domain/plan/generator.ts` — хэрэглэгчийн сонгосон дасгалуудаас, дасгал бүрт +2–4% ачаалал (хэмнэлээс хамаарна), 4 дэх долоо хоног бүр deload, 3 долоо хоног тутам хүндрэлийн шатлал нээгдэнэ, сет 3→4→5; сет/тоог систем тооцно |
 | Дасгал солих/өөрчлөх, заавар | `features/plan/DayDetailScreen`, `SwapExerciseScreen`, `ExerciseDetailScreen` (`assets/exercises/*.jpg` — AI-аар үүсгэсэн 12 зураг + `StickFigureDemo` анимэйшн) |
 | Бодит цагийн pose detection (edge) | `services/pose/usePoseDetector.ts` |
 | Бүтэн бие багтсан эсэх хүрээ | `domain/pose/framing.ts`, `components/FramingGuide.tsx` |
@@ -81,7 +81,7 @@ npm test
 | Дуут хөтөч | `services/voice/coach.ts`, `i18n` → `feedback`, `voice` |
 | Амралтын таймер + дуут дохио | `features/workout/sessionReducer.ts`, `WorkoutSessionScreen` |
 | Push мэдэгдэл (сануулга, сэдэл) | `services/notifications/scheduler.ts`, `SettingsScreen` |
-| Баяр хүргэх анимэйшн, badge, level | `WorkoutCompleteScreen`, `components/Confetti`, `domain/gamification/*` |
+| Баяр хүргэх анимэйшн, badge, level, алгассан өдөрт XP хасах (хөтөлбөр дахин эхлэхгүй) | `WorkoutCompleteScreen`, `components/Confetti`, `domain/gamification/*` (`penalty.ts`: алгассан өдөр бүрт −30 XP) |
 | Performance | Inference 24 FPS-ээр throttle, preview 30 FPS; int8 модель; JS рүү зөвхөн keypoints |
 | Offline | Бүх store `AsyncStorage`-д persist, модель апп дотор |
 | Privacy | Фрейм native worklet дотор л амьдарна; зураг/бичлэг хадгалагдахгүй, илгээгдэхгүй |

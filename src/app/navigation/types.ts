@@ -6,6 +6,8 @@ export type OnboardingStackParamList = {
   Welcome: undefined;
   ProfileForm: undefined;
   Goal: undefined;
+  Pace: undefined;
+  ExercisePick: undefined;
   AssessmentResult: undefined;
 };
 

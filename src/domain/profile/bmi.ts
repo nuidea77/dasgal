@@ -1,4 +1,4 @@
-import { Goal, Sex } from './types';
+import { Goal, Pace, Sex } from './types';
 
 export type BmiCategory = 'underweight' | 'normal' | 'overweight' | 'obese';
 
@@ -54,6 +54,16 @@ export function bmr(weightKg: number, heightCm: number, age: number, sex: Sex): 
   return Math.round(sex === 'male' ? base + 5 : base - 161);
 }
 
+/** Daily calorie delta (kcal) per goal and pace. */
+export function calorieDelta(goal: Goal, pace: Pace = 'moderate'): number {
+  const table: Record<Goal, Record<Pace, number>> = {
+    lose_weight: { easy: -300, moderate: -450, hard: -600 },
+    gain_muscle: { easy: 200, moderate: 300, hard: 400 },
+    tone: { easy: -100, moderate: -150, hard: -250 },
+  };
+  return table[goal][pace];
+}
+
 /** Daily calorie recommendation for the goal (light–moderate activity, home workouts). */
 export function dailyCalories(
   weightKg: number,
@@ -62,10 +72,11 @@ export function dailyCalories(
   sex: Sex,
   goal: Goal,
   daysPerWeek = 4,
+  pace: Pace = 'moderate',
 ): { maintenance: number; recommended: number; protein: number; carbs: number; fat: number } {
   const activity = daysPerWeek >= 5 ? 1.55 : daysPerWeek >= 3 ? 1.45 : 1.3;
   const maintenance = Math.round(bmr(weightKg, heightCm, age, sex) * activity);
-  const delta = goal === 'lose_weight' ? -450 : goal === 'gain_muscle' ? 300 : 0;
+  const delta = calorieDelta(goal, pace);
   // Never go below a safe floor.
   const floor = sex === 'male' ? 1500 : 1200;
   const recommended = Math.max(floor, Math.round((maintenance + delta) / 10) * 10);

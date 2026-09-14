@@ -6,6 +6,7 @@ import { RootNavigator } from './navigation/RootNavigator';
 import { useI18nStore } from '@/i18n';
 import { scheduleDailyReminder, scheduleMotivation } from '@/services/notifications/scheduler';
 import { syncToCloud } from '@/services/cloud/supabase';
+import { todayIso } from '@/domain/plan/generator';
 import { usePlanStore } from '@/store/usePlanStore';
 import { useProgressStore } from '@/store/useProgressStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
@@ -27,6 +28,12 @@ function useForegroundTasks() {
       if (useUserStore.getState().onboarded) {
         void scheduleDailyReminder(s.reminderEnabled, s.reminderHour, s.reminderMinute);
         void scheduleMotivation(s.motivationEnabled, s.reminderHour, s.reminderMinute, completed);
+        // Skipped scheduled days cost XP; the program itself keeps going.
+        const plan = usePlanStore.getState().plan;
+        if (plan) {
+          const scheduled = plan.days.filter((d) => d.kind === 'workout').map((d) => d.date);
+          useProgressStore.getState().applyMissedPenalties(scheduled, [...completed], todayIso());
+        }
       }
       if (s.cloudSyncEnabled) {
         const profile = useUserStore.getState().profile;

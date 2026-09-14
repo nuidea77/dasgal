@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { newlyEarnedBadges } from '@/domain/gamification/badges';
 import { levelForXp, xpForWorkout } from '@/domain/gamification/levels';
 import { computeStreak } from '@/domain/gamification/streak';
+import { MISSED_WORKOUT_XP, missedPenaltyDates } from '@/domain/gamification/penalty';
 import { asyncStorage } from '@/services/storage/persist';
 import { WorkoutRecord } from './types';
 
@@ -24,6 +25,13 @@ interface ProgressState {
   perfectWorkouts: number;
   programsCompleted: number;
   streakDays: number;
+  /** Scheduled dates that already cost XP. */
+  penalizedDates: string[];
+  /** Last penalty applied (for the notice on the plan screen). */
+  lastPenalty: { dates: string[]; xpLost: number; at: string } | null;
+  /** Deducts XP for skipped scheduled days. Returns how many days were penalised. */
+  applyMissedPenalties: (scheduledDates: string[], completedDates: string[], today: string) => { dates: string[]; xpLost: number };
+  dismissPenaltyNotice: () => void;
   recordWorkout: (record: Omit<WorkoutRecord, 'xp'>, scheduledDates: string[], programFinished: boolean) => RecordOutcome;
   reset: () => void;
 }
@@ -40,6 +48,22 @@ export const useProgressStore = create<ProgressState>()(
       perfectWorkouts: 0,
       programsCompleted: 0,
       streakDays: 0,
+      penalizedDates: [],
+      lastPenalty: null,
+      applyMissedPenalties: (scheduledDates, completedDates, today) => {
+        const s = get();
+        const dates = missedPenaltyDates(scheduledDates, completedDates, s.penalizedDates, today);
+        if (dates.length === 0) return { dates, xpLost: 0 };
+        const xpLost = Math.min(s.xp, dates.length * MISSED_WORKOUT_XP);
+        set({
+          xp: s.xp - xpLost,
+          penalizedDates: [...s.penalizedDates, ...dates],
+          lastPenalty: { dates, xpLost, at: today },
+          streakDays: computeStreak(s.history.map((h) => h.date), today, scheduledDates),
+        });
+        return { dates, xpLost };
+      },
+      dismissPenaltyNotice: () => set({ lastPenalty: null }),
       recordWorkout: (record, scheduledDates, programFinished) => {
         const s = get();
         const dates = [...s.history.map((h) => h.date), record.date];
@@ -82,7 +106,7 @@ export const useProgressStore = create<ProgressState>()(
         return { xpGained, newBadges, leveledUp: level > prevLevel, level, streakDays };
       },
       reset: () =>
-        set({ xp: 0, badges: [], history: [], totalReps: 0, repsByExercise: {}, hardWorkouts: 0, perfectWorkouts: 0, programsCompleted: 0, streakDays: 0 }),
+        set({ xp: 0, badges: [], history: [], totalReps: 0, repsByExercise: {}, hardWorkouts: 0, perfectWorkouts: 0, programsCompleted: 0, streakDays: 0, penalizedDates: [], lastPenalty: null }),
     }),
     { name: 'dasgal.progress', storage: asyncStorage },
   ),

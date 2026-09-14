@@ -1,4 +1,5 @@
 import { FitnessLevel, Goal, UserProfile } from '../profile/types';
+import { PACE_CONFIG } from '../profile/timeline';
 import { bmiCategory, calculateBmi } from '../profile/bmi';
 import { EXERCISES, Exercise, getExercise } from './exercises';
 
@@ -93,24 +94,32 @@ export interface GenerateOptions {
   seed?: number;
 }
 
+/** Number of exercises per session by level. */
+function sessionSize(level: FitnessLevel): number {
+  return level === 'beginner' ? 4 : level === 'intermediate' ? 5 : 6;
+}
+
 /**
- * Builds a 7–30 day home workout program from the profile.
+ * Builds the program from the profile.
  *
- * Rules:
- * - Workout days spread according to `daysPerWeek`; the rest are rest days.
- * - Focus rotates with the goal (weight loss → more cardio, muscle → more strength/full-body).
- * - Volume progresses ~+10% every week; a lighter "deload" is scheduled every 4th week.
- * - Exercise difficulty is capped by fitness level and by BMI (obese → low-impact substitutes).
+ * - Length = profile.programDays (derived from the chosen pace's timeline; no 30-day cap, up to a year).
+ * - Training days per week come from the pace (easy 3 / moderate 4 / hard 5).
+ * - Only the user's preferred exercises are used; the library fills in when a focus has too few.
+ * - Volume rises with every completed workout index (pace-specific %), with a lighter deload every 4th week.
+ * - Harder exercise tiers unlock as the weeks go by (one tier every 3 weeks, capped at 3).
+ * - Sets rise from 3 to 4 (week 5+) to 5 (week 9+, moderate/hard).
  */
 export function generatePlan(profile: UserProfile, options: GenerateOptions = {}): WorkoutPlan {
-  const days = Math.min(30, Math.max(7, Math.round(profile.programDays || 14)));
-  const perWeek = Math.min(6, Math.max(3, Math.round(profile.daysPerWeek || 4)));
+  const pace = PACE_CONFIG[profile.pace ?? 'moderate'];
+  const days = Math.min(365, Math.max(7, Math.round(profile.programDays || 28)));
+  const perWeek = Math.min(6, Math.max(2, Math.round(profile.daysPerWeek || pace.daysPerWeek)));
   const seed = options.seed ?? 42;
   const rnd = mulberry32(seed);
   const start = options.startDate ?? todayIso();
   const bmi = calculateBmi(profile.weightKg, profile.heightCm);
   const lowImpact = bmiCategory(bmi) === 'obese' || profile.age >= 55;
-  const maxDiff = Math.max(1, maxDifficulty(profile.level) - (lowImpact ? 1 : 0));
+  const baseMaxDiff = Math.max(1, maxDifficulty(profile.level) - (lowImpact ? 1 : 0));
+  const preferred = new Set(profile.preferredExercises ?? []);
 
   const rotation: Array<Exclude<PlanDay['focus'], 'rest'>> =
     profile.goal === 'lose_weight'
@@ -137,16 +146,21 @@ export function generatePlan(profile: UserProfile, options: GenerateOptions = {}
     }
     const focus = rotation[workoutCounter % rotation.length]!;
     const deload = (week + 1) % 4 === 0;
-    const progression = deload ? 0.8 : 1 + week * 0.1;
+    // Progressive overload: every workout adds a pace-specific percentage; deload weeks back off.
+    const progression = (deload ? 0.8 : 1) * Math.min(2.4, 1 + workoutCounter * pace.progressionPerWorkout);
     const intensity: PlanDay['intensity'] = deload ? 'easy' : workoutCounter % 3 === 2 ? 'hard' : 'moderate';
-    const exerciseCount = profile.level === 'beginner' ? 4 : profile.level === 'intermediate' ? 5 : 6;
+    const maxDiff = Math.min(3, baseMaxDiff + Math.floor(week / 3));
+    const exerciseCount = sessionSize(profile.level) + (week >= 6 ? 1 : 0);
 
-    const pool = FOCUS_POOLS[focus]
-      .map((id) => getExercise(id))
-      .filter((ex) => ex.difficulty <= maxDiff)
-      .filter((ex) => !(lowImpact && (ex.id === 'burpee' || ex.id === 'high_knees')));
-    // Avoid two push-up variants in the same session.
-    const chosen = pick(rnd, pool, exerciseCount + 2, new Set(), (e) => e.id);
+    const allowed = (ex: Exercise) => ex.difficulty <= maxDiff && !(lowImpact && (ex.id === 'burpee' || ex.id === 'high_knees' || ex.id === 'jump_squat'));
+    const focusPool = FOCUS_POOLS[focus].map((id) => getExercise(id)).filter(allowed);
+    const preferredPool = focusPool.filter((ex) => preferred.has(ex.id));
+    // Preferred exercises first; top up from the rest of the focus pool only when needed.
+    let chosen = pick(rnd, preferredPool, exerciseCount + 2, new Set(), (e) => e.id);
+    if (chosen.length < exerciseCount) {
+      const used = new Set(chosen.map((e) => e.id));
+      chosen = chosen.concat(pick(rnd, focusPool, exerciseCount + 2 - chosen.length, used, (e) => e.id));
+    }
     const seenPushup = { value: false };
     const filtered = chosen
       .filter((e) => {
@@ -157,8 +171,9 @@ export function generatePlan(profile: UserProfile, options: GenerateOptions = {}
       })
       .slice(0, exerciseCount);
 
+    const baseSets = week >= 8 && profile.pace !== 'easy' ? 5 : week >= 4 ? 4 : 3;
     const exercises: PlannedExercise[] = filtered.map((ex, idx) => {
-      const sets = intensity === 'hard' ? 4 : 3;
+      const sets = deload ? Math.max(2, baseSets - 1) : intensity === 'hard' ? baseSets + 1 : baseSets;
       const target = Math.max(5, Math.round(baseReps(profile.level, ex) * progression * (intensity === 'hard' ? 1.1 : 1)));
       return {
         key: `${i}-${idx}-${ex.id}`,

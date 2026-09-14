@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { bmiCategory, BmiCategory, calculateBmi, dailyCalories, targetWeight } from '@/domain/profile/bmi';
+import { bmiCategory, BmiCategory, calculateBmi, dailyCalories } from '@/domain/profile/bmi';
 import { UserProfile } from '@/domain/profile/types';
 import { asyncStorage } from '@/services/storage/persist';
 
@@ -25,8 +25,8 @@ export function buildAssessment(p: UserProfile): Assessment {
   return {
     bmi,
     category: bmiCategory(bmi),
-    targetWeightKg: targetWeight(p.weightKg, p.heightCm, p.goal),
-    calories: dailyCalories(p.weightKg, p.heightCm, p.age, p.sex, p.goal, p.daysPerWeek),
+    targetWeightKg: p.targetWeightKg,
+    calories: dailyCalories(p.weightKg, p.heightCm, p.age, p.sex, p.goal, p.daysPerWeek, p.pace),
   };
 }
 
