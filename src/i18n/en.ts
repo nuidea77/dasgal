@@ -90,7 +90,7 @@ export const en: Translations = {
     relentless: 'Relentless', champion: 'Champion', mountain_wolf: 'Mountain Wolf', legend: 'Legend', storm: 'Storm', titan: 'Titan',
     eternal_form: 'Eternal Form', grandmaster: 'Grandmaster', mythic_hero: 'Mythic Hero',
   },
-  rank: { yourTitle: 'Your title', nextTitle: 'Next title: {title} · {xp} XP to go', unlockedTitle: 'Congratulations!', unlockedBody: 'You are now', unlockedTail: '', keepGoing: 'Keep going!' },
+  rank: { yourTitle: 'Your title', nextTitle: 'Next title: {title} · {xp} XP to go', unlockedTitle: 'Congratulations!', unlockedBody: 'You are now', unlockedTail: '', keepGoing: 'Keep going!', newTitle: 'NEW TITLE', share: 'Share', shareText: 'I just earned the "{title}" title in Dasgal!' },
   settings: {
     title: 'Settings', reminder: 'Daily reminder', reminderTime: 'Reminder time', motivation: 'Motivational notifications', voice: 'Voice coach',
     language: 'Language', camera: 'Camera', cameraFront: 'Front', cameraBack: 'Back', showSkeleton: 'Show skeleton overlay',

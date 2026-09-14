@@ -1,5 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/app/navigation/types';
 import { Body, Caption, Card, ProgressBar, Row, Screen, Stat, Subheading, Title } from '@/components/ui';
 import { Icon } from '@/components/Icon';
 import { BADGES } from '@/domain/gamification/badges';
@@ -14,6 +17,7 @@ import { colors, radius, spacing } from '@/theme';
 export function ProgressScreen() {
   const t = useT();
   const p = useProgressStore();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const lp = levelProgress(p.xp);
   const owned = new Set(p.badges);
   const history = [...p.history].reverse().slice(0, 20);
@@ -22,6 +26,7 @@ export function ProgressScreen() {
   return (
     <Screen>
       <Title>{t.progress.title}</Title>
+      <Pressable onPress={() => navigation.navigate('TitleUnlock', { level: lp.level })}>
       <Card style={{ borderColor: colors.accent }}>
         <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
           <View style={{ flex: 1 }}>
@@ -38,6 +43,7 @@ export function ProgressScreen() {
           {lp.current}/{lp.needed} XP · {format(t.rank.nextTitle, { title: titleName(t, nextTitle(p.xp).title), xp: nextTitle(p.xp).xpNeeded })}
         </Caption>
       </Card>
+      </Pressable>
       <Card>
         <Row>
           <Stat label={t.progress.streak} value={`${p.streakDays}`} accent />

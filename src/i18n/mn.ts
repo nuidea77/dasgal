@@ -251,6 +251,9 @@ export const mn = {
     unlockedBody: 'Та одооноос',
     unlockedTail: 'цолтой боллоо',
     keepGoing: 'Урагшаа!',
+    newTitle: 'ШИНЭ ЦОЛ',
+    share: 'Хуваалцах',
+    shareText: 'Би Dasgal аппд «{title}» цол хүртлээ!',
   },
   settings: {
     title: 'Тохиргоо',

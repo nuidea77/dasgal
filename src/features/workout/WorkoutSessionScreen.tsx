@@ -140,6 +140,11 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
     const completedCount = Object.keys(usePlanStore.getState().completedDates).length + 1;
     const programFinished = completedCount >= scheduled.length;
     const outcome = recordWorkout(record, scheduled, programFinished);
+    if (outcome.xpGained === 0) {
+      // Nothing was done: leave the day open and go back without a celebration.
+      navigation.popToTop();
+      return;
+    }
     markCompleted(day.date, record.id);
     void clearMotivationForToday(record.date);
     navigation.replace('WorkoutComplete', { record: { ...record, xp: outcome.xpGained }, outcome });
