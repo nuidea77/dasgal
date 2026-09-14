@@ -74,6 +74,7 @@ npm test
 | Шаардлага | Хаана |
 |---|---|
 | Профайл, BMI, зорилтот жин (хэрэглэгч оруулна), хэмнэл (амархан/дунд/хүнд → хугацаа), дасгал сонголт | `domain/profile/bmi.ts`, `domain/profile/timeline.ts`, `features/onboarding/*` |
+| Долоо хоногийн мөр (өнөөдөр тодорч, өдөр бүрийн төлөв — хийсэн/алгассан/товлосон/амралт), долоо хоног хооронд гүйлгэнэ | `domain/plan/weekStrip.ts`, `features/plan/WeekStrip.tsx` |
 | Зорилтод хүртэлх хөтөлбөр (30 хоногийн хязгааргүй, 1 жил хүртэл), өдрийн илчлэг | `domain/plan/generator.ts` — хэрэглэгчийн сонгосон дасгалуудаас, дасгал бүрт +2–4% ачаалал (хэмнэлээс хамаарна), 4 дэх долоо хоног бүр deload, 3 долоо хоног тутам хүндрэлийн шатлал нээгдэнэ, сет 3→4→5; сет/тоог систем тооцно |
 | Дасгал солих/өөрчлөх, заавар | `features/plan/DayDetailScreen`, `SwapExerciseScreen`, `ExerciseDetailScreen` (`assets/exercises/*.jpg` — AI-аар үүсгэсэн 12 зураг + `StickFigureDemo` анимэйшн) |
 | Бодит цагийн pose detection (edge) | `services/pose/usePoseDetector.ts` |

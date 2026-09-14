@@ -19,6 +19,8 @@ export const mn = {
     kcal: 'ккал',
     exercises: 'дасгал',
   },
+  /** Short weekday labels indexed by Date.getUTCDay() (0 = Sunday). */
+  weekdays: ['Ня', 'Да', 'Мя', 'Лх', 'Пү', 'Ба', 'Бя'],
   tabs: { plan: 'Хөтөлбөр', library: 'Дасгалууд', progress: 'Ахиц', settings: 'Тохиргоо' },
   muscles: { legs: 'Хөл', chest: 'Цээж', core: 'Хэвлий', glutes: 'Өгзөг', back: 'Нуруу', arms: 'Гар', full_body: 'Бүх бие', cardio: 'Кардио' },
   library: {
@@ -154,6 +156,9 @@ export const mn = {
     streakLabel: 'Дараалсан өдөр',
     startNow: 'Одоо эхлэх',
     todayFocus: 'Өнөөдөр',
+    thisWeek: 'Энэ долоо хоног',
+    weekDone: '{done}/{total} хийсэн',
+    jumpToday: 'Өнөөдөр',
     progress: '{done}/{total} дасгал хийсэн · {day}-р өдөр',
     missedTitle: 'Алгассан дасгал',
     missedBody: '{n} өдөр алгассан тул {xp} XP хасагдлаа. Хөтөлбөр үргэлжилнэ, дахин эхлэхгүй.',

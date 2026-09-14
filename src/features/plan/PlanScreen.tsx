@@ -4,19 +4,17 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/app/navigation/types';
 import { Body, Button, Caption, Card, ProgressBar, Row, Screen, Subheading, Title } from '@/components/ui';
-import { Icon, IconName } from '@/components/Icon';
+import { Icon } from '@/components/Icon';
 import { ProgressRing } from '@/components/ProgressRing';
 import { MotivationBanner } from './MotivationBanner';
+import { WeekStrip } from './WeekStrip';
+import { buildStrip } from '@/domain/plan/weekStrip';
 import { estimateDayCalories, estimateWeeklyCalories, todayIso } from '@/domain/plan/generator';
 import { format, useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
 import { useProgressStore } from '@/store/useProgressStore';
 import { useUserStore } from '@/store/useUserStore';
 import { colors, radius, spacing } from '@/theme';
-
-/** Calendar cells shown around today (the program itself can be many months long). */
-const WINDOW_BEFORE = 6;
-const WINDOW_AFTER = 14;
 
 export function PlanScreen() {
   const t = useT();
@@ -37,11 +35,7 @@ export function PlanScreen() {
   }, [scheduled, completed, today, applyMissedPenalties]);
 
   const todayDay = useMemo(() => plan?.days.find((d) => d.date === today) ?? plan?.days.find((d) => d.date > today) ?? plan?.days[0], [plan, today]);
-  const window = useMemo(() => {
-    if (!plan) return [];
-    const idx = todayDay?.dayIndex ?? 0;
-    return plan.days.slice(Math.max(0, idx - WINDOW_BEFORE), Math.min(plan.days.length, idx + WINDOW_AFTER + 1));
-  }, [plan, todayDay]);
+  const strip = useMemo(() => (plan ? buildStrip(plan, completed, penalized, today) : []), [plan, completed, penalized, today]);
 
   if (!plan || !profile) {
     return (
@@ -90,6 +84,7 @@ export function PlanScreen() {
           kgToGo,
         }}
       />
+      <WeekStrip strip={strip} today={today} onSelect={(dayIndex) => navigation.navigate('DayDetail', { dayIndex })} />
       <Card>
         <Row style={{ flexWrap: 'nowrap', gap: spacing.md }}>
           <ProgressRing
@@ -152,25 +147,6 @@ export function PlanScreen() {
         </Card>
       ) : null}
 
-      <View style={styles.grid}>
-        {window.map((d) => {
-          const isToday = d.date === today;
-          const done = Boolean(completed[d.date]);
-          const missed = !done && d.kind === 'workout' && missedSet.has(d.date);
-          const icon: IconName = done ? 'check' : missed ? 'close' : d.kind === 'rest' ? 'moon' : focusIcon(d.focus);
-          const color = done ? colors.accent : missed ? colors.danger : d.kind === 'rest' ? colors.textDim : colors.text;
-          return (
-            <Pressable
-              key={d.dayIndex}
-              onPress={() => navigation.navigate('DayDetail', { dayIndex: d.dayIndex })}
-              style={[styles.cell, d.kind === 'rest' && styles.cellRest, isToday && styles.cellToday, done && styles.cellDone, missed && styles.cellMissed]}
-            >
-              <Text style={styles.cellDay}>{d.dayIndex + 1}</Text>
-              <Icon name={icon} size={18} color={color} />
-            </Pressable>
-          );
-        })}
-      </View>
       <Row>
         <Icon name="flame" color={colors.textDim} size={16} />
         <Caption>{format(t.plan.weeklyBurn, { kcal: estimateWeeklyCalories(plan, profile.weightKg) })}</Caption>
@@ -180,20 +156,8 @@ export function PlanScreen() {
   );
 }
 
-function focusIcon(focus: string): IconName {
-  const map: Record<string, IconName> = { full_body: 'dumbbell', lower: 'legs', upper_core: 'activity', cardio: 'heart' };
-  return map[focus] ?? 'dumbbell';
-}
-
 const styles = StyleSheet.create({
   todayCard: { borderColor: colors.primary, gap: spacing.sm },
   targetWeight: { color: colors.text, fontSize: 26, fontWeight: '900' },
   miniStat: { color: colors.textMuted, fontWeight: '700', fontSize: 13 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  cell: { width: '13%', aspectRatio: 0.85, backgroundColor: colors.card, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.cardBorder, minWidth: 42 },
-  cellRest: { opacity: 0.55 },
-  cellToday: { borderColor: colors.accent, borderWidth: 2 },
-  cellDone: { backgroundColor: '#163D33', borderColor: colors.accent },
-  cellMissed: { backgroundColor: '#3A1C28', borderColor: colors.danger },
-  cellDay: { color: colors.textMuted, fontSize: 11, fontWeight: '700' },
 });
