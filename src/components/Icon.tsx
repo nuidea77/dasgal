@@ -29,6 +29,8 @@ export type IconName =
   | 'arrowUp'
   | 'legs'
   | 'hundred'
+  | 'male'
+  | 'female'
   | 'user';
 
 interface Props {
@@ -213,6 +215,24 @@ function glyph(name: IconName, p: P): React.ReactNode {
           <Path d="M3 9v6M2 9h1" {...p} />
           <Rect x={7} y={8} width={5} height={8} rx={2.5} {...p} />
           <Rect x={15} y={8} width={5} height={8} rx={2.5} {...p} />
+        </>
+      );
+    case 'male':
+      // Mars symbol: circle with an arrow to the upper right.
+      return (
+        <>
+          <Circle cx={10} cy={14} r={6} {...p} />
+          <Line x1={14.5} y1={9.5} x2={20} y2={4} {...p} />
+          <Polyline points="14 4 20 4 20 10" {...p} />
+        </>
+      );
+    case 'female':
+      // Venus symbol: circle above a cross.
+      return (
+        <>
+          <Circle cx={12} cy={8} r={6} {...p} />
+          <Line x1={12} y1={14} x2={12} y2={22} {...p} />
+          <Line x1={8.5} y1={18.5} x2={15.5} y2={18.5} {...p} />
         </>
       );
     case 'user':

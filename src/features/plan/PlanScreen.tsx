@@ -5,6 +5,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/app/navigation/types';
 import { Body, Button, Caption, Card, ProgressBar, Row, Screen, Subheading, Title } from '@/components/ui';
 import { Icon, IconName } from '@/components/Icon';
+import { ProgressRing } from '@/components/ProgressRing';
+import { MotivationBanner } from './MotivationBanner';
 import { estimateDayCalories, estimateWeeklyCalories, todayIso } from '@/domain/plan/generator';
 import { format, useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
@@ -52,6 +54,16 @@ export function PlanScreen() {
   const doneCount = scheduled.filter((d) => completed[d]).length;
   const dayNumber = (todayDay?.dayIndex ?? 0) + 1;
   const missedSet = new Set(penalized);
+  const streakDays = useProgressStore.getState().streakDays;
+
+  // Progress toward the target weight: how much of the planned change is already earned
+  // (approximated by the share of workouts completed, which is what the app can observe).
+  const startWeight = profile.weightKg;
+  const targetKg = profile.targetWeightKg;
+  const totalChange = Math.abs(targetKg - startWeight);
+  const targetRatio = scheduled.length ? doneCount / scheduled.length : 0;
+  const kgToGo = Math.round(totalChange * (1 - targetRatio) * 10) / 10;
+  const daysLeft = Math.max(0, (plan.days.length - dayNumber) + 1);
 
   return (
     <Screen>
@@ -66,12 +78,49 @@ export function PlanScreen() {
           <Button title={t.plan.dismiss} variant="secondary" onPress={dismissPenaltyNotice} />
         </Card>
       ) : null}
+      <MotivationBanner
+        date={today}
+        context={{
+          streakDays,
+          workoutsDone: doneCount,
+          workoutsTotal: scheduled.length,
+          restDay: todayDay?.kind === 'rest',
+          doneToday: Boolean(todayDay && completed[todayDay.date]),
+          missedDays: missedSet.size,
+          kgToGo,
+        }}
+      />
       <Card>
-        <Caption>{format(t.plan.progress, { done: doneCount, total: scheduled.length, day: dayNumber })}</Caption>
-        <ProgressBar ratio={scheduled.length ? doneCount / scheduled.length : 0} color={colors.accent} />
-        <Caption>
-          {profile.programDays} {t.common.day.toLowerCase()} · {t.onboarding[`pace_${profile.pace}` as const]} · {plan.days[plan.days.length - 1]?.date}
-        </Caption>
+        <Row style={{ flexWrap: 'nowrap', gap: spacing.md }}>
+          <ProgressRing
+            ratio={targetRatio}
+            value={totalChange < 0.1 ? '✓' : `${kgToGo}`}
+            label={totalChange < 0.1 ? t.plan.targetReached : t.plan.kgToGoShort}
+          />
+          <View style={{ flex: 1, gap: spacing.sm }}>
+            <View>
+              <Caption>{t.plan.toTarget}</Caption>
+              <Text style={styles.targetWeight}>{targetKg} кг</Text>
+            </View>
+            <Row style={{ gap: spacing.md }}>
+              <Row style={{ gap: 4 }}>
+                <Icon name="flame" size={16} color={streakDays > 0 ? colors.warning : colors.textDim} />
+                <Text style={[styles.miniStat, streakDays > 0 && { color: colors.warning }]}>{streakDays}</Text>
+              </Row>
+              <Row style={{ gap: 4 }}>
+                <Icon name="check" size={16} color={colors.accent} />
+                <Text style={styles.miniStat}>
+                  {doneCount}/{scheduled.length}
+                </Text>
+              </Row>
+              <Row style={{ gap: 4 }}>
+                <Icon name="calendar" size={16} color={colors.textDim} />
+                <Text style={styles.miniStat}>{format(t.plan.daysLeft, { n: daysLeft })}</Text>
+              </Row>
+            </Row>
+            <ProgressBar ratio={targetRatio} color={colors.accent} />
+          </View>
+        </Row>
       </Card>
       {todayDay ? (
         <Card style={styles.todayCard}>
@@ -138,6 +187,8 @@ function focusIcon(focus: string): IconName {
 
 const styles = StyleSheet.create({
   todayCard: { borderColor: colors.primary, gap: spacing.sm },
+  targetWeight: { color: colors.text, fontSize: 26, fontWeight: '900' },
+  miniStat: { color: colors.textMuted, fontWeight: '700', fontSize: 13 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   cell: { width: '13%', aspectRatio: 0.85, backgroundColor: colors.card, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.cardBorder, minWidth: 42 },
   cellRest: { opacity: 0.55 },

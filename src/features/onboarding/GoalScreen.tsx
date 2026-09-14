@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { OnboardingScreenProps } from '@/app/navigation/types';
 import { Body, Button, Caption, Chip, Row, Screen, Subheading, Title } from '@/components/ui';
 import { Icon, IconName } from '@/components/Icon';
+import { WheelPicker } from '@/components/WheelPicker';
 import { healthyWeightRange, targetWeight } from '@/domain/profile/bmi';
 import { FitnessLevel, Goal } from '@/domain/profile/types';
 import { format, useT } from '@/i18n';
@@ -20,20 +21,20 @@ export function GoalScreen({ navigation }: OnboardingScreenProps<'Goal'>) {
   const t = useT();
   const { draft, update } = useOnboardingDraft();
   const [error, setError] = useState<string | null>(null);
-  const weight = Number(draft.weightKg);
-  const height = Number(draft.heightCm);
+  const weight = draft.weightKg;
+  const height = draft.heightCm;
   const range = healthyWeightRange(height);
   const suggested = targetWeight(weight, height, draft.goal);
 
-  // Pre-fill the target with the suggestion for the chosen goal (until the user edits it).
+  // Move the target to the suggestion whenever the goal changes, so the picker opens on it.
   useEffect(() => {
-    if (!draft.targetWeightKg) update({ targetWeightKg: String(suggested) });
+    update({ targetWeightKg: suggested });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft.goal]);
 
   const next = () => {
-    const target = Number(draft.targetWeightKg);
-    if (!(target >= weight * 0.6 && target <= weight * 1.4) || !(target >= 30 && target <= 250)) {
+    const target = draft.targetWeightKg;
+    if (!(target >= 30 && target <= 250)) {
       setError(t.onboarding.validation);
       return;
     }
@@ -46,7 +47,7 @@ export function GoalScreen({ navigation }: OnboardingScreenProps<'Goal'>) {
       <Title>{t.onboarding.goalTitle}</Title>
       <View style={{ gap: spacing.sm }}>
         {GOALS.map((g) => (
-          <Pressable key={g.id} onPress={() => update({ goal: g.id, targetWeightKg: String(targetWeight(weight, height, g.id)) })} style={[styles.goal, draft.goal === g.id && styles.goalSelected]}>
+          <Pressable key={g.id} onPress={() => update({ goal: g.id, targetWeightKg: targetWeight(weight, height, g.id) })} style={[styles.goal, draft.goal === g.id && styles.goalSelected]}>
             <View style={styles.goalIcon}>
               <Icon name={g.icon} size={24} color={draft.goal === g.id ? colors.primary : colors.textMuted} />
             </View>
@@ -61,15 +62,18 @@ export function GoalScreen({ navigation }: OnboardingScreenProps<'Goal'>) {
         ))}
       </Row>
       <Subheading>{t.onboarding.targetWeightTitle}</Subheading>
-      <TextInput
+      <WheelPicker
+        min={Math.max(30, Math.round(weight * 0.6))}
+        max={Math.min(250, Math.round(weight * 1.4))}
+        step={0.5}
+        decimals={1}
         value={draft.targetWeightKg}
-        onChangeText={(v) => update({ targetWeightKg: v })}
-        keyboardType="numeric"
-        style={styles.input}
-        placeholder={t.onboarding.targetWeightInput}
-        placeholderTextColor={colors.textDim}
+        onChange={(v) => update({ targetWeightKg: v })}
+        unit="кг"
+        markerValue={Math.round(weight)}
+        markerLabel={t.onboarding.nowMarker}
+        hint={format(t.onboarding.targetWeightHint, { min: range.min, max: range.max, suggested })}
       />
-      <Caption>{format(t.onboarding.targetWeightHint, { min: range.min, max: range.max, suggested })}</Caption>
       {error ? <Body style={{ color: colors.danger }}>{error}</Body> : null}
       <View style={{ flex: 1 }} />
       <Button title={t.common.next} size="lg" onPress={next} />
@@ -82,5 +86,5 @@ const styles = StyleSheet.create({
   goalSelected: { borderColor: colors.primary, backgroundColor: '#251F4D' },
   goalIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
   goalText: { color: colors.text, fontSize: 17, fontWeight: '700' },
-  input: { backgroundColor: colors.bgElevated, color: colors.text, borderRadius: radius.sm, padding: spacing.md, fontSize: 22, fontWeight: '700', borderWidth: 1, borderColor: colors.cardBorder },
+
 });

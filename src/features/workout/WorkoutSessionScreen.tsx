@@ -15,7 +15,7 @@ import { mapPoseToView } from '@/domain/pose/viewMapping';
 import { FeedbackKey } from '@/domain/pose/feedback';
 import { estimateCalories, todayIso } from '@/domain/plan/generator';
 import { getExercise } from '@/domain/plan/exercises';
-import { useT } from '@/i18n';
+import { format, useT } from '@/i18n';
 import { usePoseDetector } from '@/services/pose/usePoseDetector';
 import { voiceCoach } from '@/services/voice/coach';
 import { clearMotivationForToday } from '@/services/notifications/scheduler';
@@ -39,6 +39,7 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
   const [state, dispatch] = useReducer(sessionReducer, day?.exercises ?? [], createSession);
   const [viewSize, setViewSize] = useState({ width: 1, height: 1 });
   const [feedback, setFeedback] = useState<FeedbackKey | null>(null);
+  const [cheer, setCheer] = useState<string | null>(null);
   const startedAt = useRef(new Date());
   const finishedRef = useRef(false);
 
@@ -95,10 +96,20 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
     if (state.event === 'rep') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       voiceCoach.countRep(state.currentReps);
-      if (pe && state.currentReps === Math.ceil(pe.target / 2) && pe.target >= 8) {
-        // "halfway" is nice-to-have; keep counting numbers dominant.
+      // Milestone encouragement: halfway, then the last three reps.
+      if (pe && pe.target >= 8) {
+        const left = pe.target - state.currentReps;
+        const key = `${state.exerciseIndex}-${state.setIndex}-${state.currentReps}`;
+        if (state.currentReps === Math.ceil(pe.target / 2)) {
+          showCheer(t.workout.cheerHalfway, key);
+        } else if (left === 1) {
+          showCheer(t.workout.cheerLastOne, key);
+        } else if (left > 0 && left <= 3) {
+          showCheer(format(t.workout.cheerLast, { n: left }), key);
+        }
       }
     } else if (state.event === 'set_done' || state.event === 'exercise_done') {
+      showCheer(t.workout.cheerSetDone, `done-${state.exerciseIndex}-${state.setIndex}`);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       voiceCoach.setDone();
       setTimeout(() => voiceCoach.restStart(state.restLeft), 1500);
@@ -109,6 +120,16 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
   useEffect(() => {
     if (state.status === 'rest' && state.restLeft === 3) voiceCoach.restEnd();
   }, [state.status, state.restLeft]);
+
+  // Show a cheer for a moment and speak it once.
+  const cheerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showCheer = useCallback((text: string, key: string) => {
+    setCheer(text);
+    voiceCoach.cheer(text, key);
+    if (cheerTimer.current) clearTimeout(cheerTimer.current);
+    cheerTimer.current = setTimeout(() => setCheer(null), 1800);
+  }, []);
+  useEffect(() => () => { if (cheerTimer.current) clearTimeout(cheerTimer.current); }, []);
 
   // Persist the result and go to the celebration screen.
   useEffect(() => {
@@ -238,7 +259,15 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
             <Text style={styles.countdownLabel}>{t.workout.getReady}</Text>
           </View>
         ) : null}
-        {state.status === 'rest' ? <RestOverlay seconds={state.restLeft} nextName={nextExerciseName(state, t)} onSkip={() => dispatch({ type: 'SKIP_REST' })} /> : null}
+        {state.status === 'rest' ? (
+          <RestOverlay
+            seconds={state.restLeft}
+            nextName={nextExerciseName(state, t)}
+            progress={`${state.exerciseIndex + 1}/${state.exercises.length}`}
+            cheer={state.setIndex >= pe.sets - 1 ? t.workout.cheerStrong : t.workout.cheerFinalSet}
+            onSkip={() => dispatch({ type: 'SKIP_REST' })}
+          />
+        ) : null}
         {state.status === 'paused' ? (
           <View style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: colors.overlay }]}>
             <Text style={styles.countdownLabel}>{t.workout.pause}</Text>
@@ -246,10 +275,14 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
           </View>
         ) : null}
 
-        {/* Feedback */}
+        {/* Feedback / encouragement */}
         {state.status === 'exercising' && feedback ? (
           <View style={styles.feedback}>
             <Text style={styles.feedbackText}>{t.feedback[feedback]}</Text>
+          </View>
+        ) : state.status === 'exercising' && cheer ? (
+          <View style={[styles.feedback, styles.cheer]}>
+            <Text style={styles.feedbackText}>{cheer}</Text>
           </View>
         ) : null}
       </View>
@@ -304,15 +337,17 @@ function nextExerciseName(state: ReturnType<typeof createSession>, t: ReturnType
   return t.exercises[next.exerciseId as keyof typeof t.exercises]?.name ?? next.exerciseId;
 }
 
-function RestOverlay({ seconds, nextName, onSkip }: { seconds: number; nextName: string; onSkip: () => void }) {
+function RestOverlay({ seconds, nextName, progress, cheer, onSkip }: { seconds: number; nextName: string; progress: string; cheer: string; onSkip: () => void }) {
   const t = useT();
   return (
     <View style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: colors.overlay }]}>
+      <Text style={styles.restCheer}>{cheer}</Text>
       <Text style={styles.countdownLabel}>{t.workout.restTitle}</Text>
       <Text style={styles.countdown}>{seconds}</Text>
       <Body muted>
         {t.workout.restHint} {nextName}
       </Body>
+      <Text style={styles.restProgress}>{progress}</Text>
       <Button title={t.workout.skipRest} variant="secondary" onPress={onSkip} style={{ marginTop: spacing.md }} />
     </View>
   );
@@ -330,6 +365,9 @@ const styles = StyleSheet.create({
   modelBanner: { position: 'absolute', top: 100, alignSelf: 'center', backgroundColor: colors.overlay, padding: spacing.sm, borderRadius: radius.sm },
   countdown: { fontSize: 120, fontWeight: '900', color: colors.white, textShadowColor: '#000', textShadowRadius: 12 },
   countdownLabel: { fontSize: 22, color: colors.white, fontWeight: '700' },
+  cheer: { backgroundColor: 'rgba(46,230,166,0.92)' },
+  restCheer: { color: colors.accent, fontSize: 20, fontWeight: '800', marginBottom: -4 },
+  restProgress: { color: colors.textDim, fontWeight: '700', marginTop: 2 },
   feedback: { position: 'absolute', bottom: spacing.lg, alignSelf: 'center', backgroundColor: 'rgba(255,92,122,0.9)', paddingVertical: 12, paddingHorizontal: 20, borderRadius: radius.pill },
   feedbackText: { color: colors.white, fontWeight: '800', fontSize: 18 },
   hud: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, paddingBottom: spacing.xl, gap: spacing.md, backgroundColor: colors.bg },

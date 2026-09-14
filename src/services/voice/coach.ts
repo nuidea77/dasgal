@@ -78,6 +78,11 @@ class VoiceCoach {
     this.speak(dict().voice.setDone, 'high', 'set_done');
   }
 
+  /** Mid-set encouragement (halfway, last reps). Spoken once per key. */
+  cheer(text: string, key: string): void {
+    this.speak(text, 'normal', key);
+  }
+
   workoutDone(): void {
     this.speak(dict().voice.workoutDone, 'high', 'workout_done');
   }

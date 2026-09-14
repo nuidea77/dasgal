@@ -3,13 +3,13 @@ import { FitnessLevel, Goal, Pace, Sex, UserProfile } from '@/domain/profile/typ
 
 export interface Draft {
   name: string;
-  age: string;
+  age: number;
   sex: Sex;
-  heightCm: string;
-  weightKg: string;
+  heightCm: number;
+  weightKg: number;
   goal: Goal;
   level: FitnessLevel;
-  targetWeightKg: string;
+  targetWeightKg: number;
   pace: Pace;
   preferredExercises: string[];
   programDays: number;
@@ -25,9 +25,10 @@ interface DraftState {
 
 /** In-memory onboarding form state (not persisted until the profile is saved). */
 export const useOnboardingDraft = create<DraftState>((set, get) => ({
+  // Pickers open on these averages, so nothing starts blank.
   draft: {
-    name: '', age: '', sex: 'male', heightCm: '', weightKg: '', goal: 'tone', level: 'beginner',
-    targetWeightKg: '', pace: 'moderate', preferredExercises: [], programDays: 28, daysPerWeek: 4,
+    name: '', age: 28, sex: 'male', heightCm: 170, weightKg: 70, goal: 'tone', level: 'beginner',
+    targetWeightKg: 70, pace: 'moderate', preferredExercises: [], programDays: 28, daysPerWeek: 4,
   },
   update: (patch) => set({ draft: { ...get().draft, ...patch } }),
   toggleExercise: (id) => {
@@ -39,13 +40,13 @@ export const useOnboardingDraft = create<DraftState>((set, get) => ({
     const d = get().draft;
     return {
       name: d.name.trim(),
-      age: Number(d.age),
+      age: d.age,
       sex: d.sex,
-      heightCm: Number(d.heightCm),
-      weightKg: Number(d.weightKg),
+      heightCm: d.heightCm,
+      weightKg: d.weightKg,
       goal: d.goal,
       level: d.level,
-      targetWeightKg: Number(d.targetWeightKg),
+      targetWeightKg: d.targetWeightKg,
       pace: d.pace,
       preferredExercises: d.preferredExercises,
       programDays: d.programDays,
