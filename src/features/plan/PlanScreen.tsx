@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/app/navigation/types';
-import { Body, Button, Caption, Card, Screen, Subheading, Title } from '@/components/ui';
+import { Body, Button, Caption, Card, Row, Screen, Subheading, Title } from '@/components/ui';
+import { Icon, IconName } from '@/components/Icon';
 import { todayIso } from '@/domain/plan/generator';
 import { getExercise } from '@/domain/plan/exercises';
 import { useT } from '@/i18n';
@@ -47,7 +48,10 @@ export function PlanScreen() {
                 {t.plan[`intensity_${todayDay.intensity}` as const]}
               </Body>
               {completed[todayDay.date] ? (
-                <Body style={{ color: colors.accent, fontWeight: '700' }}>✓ {t.plan.completed}</Body>
+                <Row>
+                  <Icon name="check" color={colors.accent} size={18} />
+                  <Body style={{ color: colors.accent, fontWeight: '700' }}>{t.plan.completed}</Body>
+                </Row>
               ) : (
                 <Button title={t.plan.startWorkout} onPress={() => navigation.navigate('WorkoutSession', { dayIndex: todayDay.dayIndex })} />
               )}
@@ -68,7 +72,11 @@ export function PlanScreen() {
               style={[styles.cell, d.kind === 'rest' && styles.cellRest, isToday && styles.cellToday, done && styles.cellDone]}
             >
               <Text style={styles.cellDay}>{d.dayIndex + 1}</Text>
-              <Text style={styles.cellIcon}>{done ? '✓' : d.kind === 'rest' ? '😴' : focusIcon(d.focus)}</Text>
+              <Icon
+                name={done ? 'check' : d.kind === 'rest' ? 'moon' : focusIcon(d.focus)}
+                size={18}
+                color={done ? colors.accent : d.kind === 'rest' ? colors.textDim : colors.text}
+              />
             </Pressable>
           );
         })}
@@ -84,8 +92,9 @@ export function PlanScreen() {
   );
 }
 
-function focusIcon(focus: string): string {
-  return { full_body: '🏋️', lower: '🦵', upper_core: '💪', cardio: '🏃' }[focus] ?? '🏋️';
+function focusIcon(focus: string): IconName {
+  const map: Record<string, IconName> = { full_body: 'dumbbell', lower: 'legs', upper_core: 'activity', cardio: 'heart' };
+  return map[focus] ?? 'dumbbell';
 }
 
 const styles = StyleSheet.create({
@@ -96,5 +105,5 @@ const styles = StyleSheet.create({
   cellToday: { borderColor: colors.accent, borderWidth: 2 },
   cellDone: { backgroundColor: '#163D33', borderColor: colors.accent },
   cellDay: { color: colors.textMuted, fontSize: 11, fontWeight: '700' },
-  cellIcon: { fontSize: 16 },
+  cellIcon: {},
 });

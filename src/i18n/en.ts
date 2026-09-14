@@ -80,7 +80,7 @@ export const en: Translations = {
     version: 'Version',
   },
   notifications: {
-    reminderTitle: 'Workout time 💪', reminderBody: "Do today's workout and keep your streak!", missedTitle: 'Missed yesterday? No problem 🙂',
+    reminderTitle: 'Workout time', reminderBody: "Do today's workout and keep your streak!", missedTitle: 'Missed yesterday? No problem',
     quotes: [
       'The hardest part is starting. 10 minutes is enough today.',
       'You are stronger than yesterday.',

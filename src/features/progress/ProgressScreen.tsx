@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Body, Caption, Card, ProgressBar, Row, Screen, Stat, Subheading, Title } from '@/components/ui';
+import { Icon } from '@/components/Icon';
 import { BADGES } from '@/domain/gamification/badges';
 import { levelProgress } from '@/domain/gamification/levels';
 import { useT } from '@/i18n';
@@ -31,7 +32,7 @@ export function ProgressScreen() {
       </Card>
       <Card>
         <Row>
-          <Stat label={t.progress.streak} value={`${p.streakDays}🔥`} accent />
+          <Stat label={t.progress.streak} value={`${p.streakDays}`} accent />
           <Stat label={t.progress.workouts} value={`${p.history.length}`} />
           <Stat label={t.progress.totalReps} value={`${p.totalReps}`} />
           <Stat label={t.progress.calories} value={`${totalCalories}`} />
@@ -44,7 +45,9 @@ export function ProgressScreen() {
           const has = owned.has(b.id);
           return (
             <View key={b.id} style={[styles.badge, !has && styles.badgeLocked]}>
-              <Text style={styles.badgeIcon}>{has ? b.icon : '🔒'}</Text>
+              <View style={styles.badgeIcon}>
+                <Icon name={has ? b.icon : 'lock'} size={26} color={has ? colors.warning : colors.textDim} />
+              </View>
               <Text style={styles.badgeName} numberOfLines={2}>{info?.name ?? b.id}</Text>
             </View>
           );
@@ -71,6 +74,6 @@ const styles = StyleSheet.create({
   badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   badge: { width: '30%', flexGrow: 1, backgroundColor: colors.card, borderRadius: radius.md, padding: spacing.sm, alignItems: 'center', gap: 4, borderWidth: 1, borderColor: colors.cardBorder },
   badgeLocked: { opacity: 0.4 },
-  badgeIcon: { fontSize: 30 },
+  badgeIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
   badgeName: { color: colors.text, fontSize: 12, fontWeight: '600', textAlign: 'center' },
 });

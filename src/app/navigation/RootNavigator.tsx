@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Icon } from '@/components/Icon';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -40,9 +40,9 @@ function MainTabs() {
         tabBarInactiveTintColor: colors.textDim,
       }}
     >
-      <Tabs.Screen name="Plan" component={PlanScreen} options={{ title: t.tabs.plan, tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>📅</Text> }} />
-      <Tabs.Screen name="Progress" component={ProgressScreen} options={{ title: t.tabs.progress, tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>🏆</Text> }} />
-      <Tabs.Screen name="Settings" component={SettingsScreen} options={{ title: t.tabs.settings, tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>⚙️</Text> }} />
+      <Tabs.Screen name="Plan" component={PlanScreen} options={{ title: t.tabs.plan, tabBarIcon: ({ color }) => <Icon name="calendar" color={color} /> }} />
+      <Tabs.Screen name="Progress" component={ProgressScreen} options={{ title: t.tabs.progress, tabBarIcon: ({ color }) => <Icon name="trophy" color={color} /> }} />
+      <Tabs.Screen name="Settings" component={SettingsScreen} options={{ title: t.tabs.settings, tabBarIcon: ({ color }) => <Icon name="settings" color={color} /> }} />
     </Tabs.Navigator>
   );
 }

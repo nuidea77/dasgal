@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Alert, Switch, View } from 'react-native';
 import Constants from 'expo-constants';
 import { Body, Button, Caption, Card, Chip, Row, Screen, Subheading, Title } from '@/components/ui';
+import { Icon } from '@/components/Icon';
 import { useI18nStore, useT } from '@/i18n';
 import { scheduleDailyReminder, scheduleMotivation } from '@/services/notifications/scheduler';
 import { isCloudConfigured } from '@/services/cloud/supabase';
@@ -86,7 +87,10 @@ export function SettingsScreen() {
         <Caption>{t.settings.cloudSyncHint}</Caption>
       </Card>
       <Card>
-        <Subheading>🔒 {t.settings.privacyTitle}</Subheading>
+        <Row>
+          <Icon name="lock" color={colors.accent} size={20} />
+          <Subheading>{t.settings.privacyTitle}</Subheading>
+        </Row>
         <Caption>{t.settings.privacyBody}</Caption>
       </Card>
       <View style={{ flex: 1 }} />

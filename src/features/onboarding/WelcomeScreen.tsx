@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { OnboardingScreenProps } from '@/app/navigation/types';
 import { Body, Button, Caption, Screen, Title } from '@/components/ui';
 import { StickFigureDemo } from '@/components/StickFigureDemo';
+import { Icon } from '@/components/Icon';
 import { getExercise } from '@/domain/plan/exercises';
 import { useT } from '@/i18n';
 import { colors, spacing } from '@/theme';
@@ -18,7 +19,7 @@ export function WelcomeScreen({ navigation }: OnboardingScreenProps<'Welcome'>) 
       </View>
       <StickFigureDemo rest={squat.demo.rest} active={squat.demo.active} size={240} />
       <View style={styles.privacy}>
-        <Text style={styles.lock}>🔒</Text>
+        <Icon name="lock" color={colors.accent} />
         <Caption style={{ flex: 1 }}>{t.onboarding.privacyNote}</Caption>
       </View>
       <View style={{ flex: 1 }} />
@@ -31,5 +32,4 @@ const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl },
   title: { fontSize: 44, color: colors.primary },
   privacy: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center', backgroundColor: colors.bgElevated, padding: spacing.md, borderRadius: 16 },
-  lock: { fontSize: 22 },
 });

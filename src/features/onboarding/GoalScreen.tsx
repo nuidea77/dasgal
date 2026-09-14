@@ -2,16 +2,17 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { OnboardingScreenProps } from '@/app/navigation/types';
 import { Button, Chip, Row, Screen, Subheading, Title } from '@/components/ui';
+import { Icon, IconName } from '@/components/Icon';
 import { FitnessLevel, Goal } from '@/domain/profile/types';
 import { useT } from '@/i18n';
 import { useUserStore } from '@/store/useUserStore';
 import { colors, radius, spacing } from '@/theme';
 import { useOnboardingDraft } from './draft';
 
-const GOALS: Array<{ id: Goal; icon: string }> = [
-  { id: 'gain_muscle', icon: '💪' },
-  { id: 'lose_weight', icon: '🔥' },
-  { id: 'tone', icon: '✨' },
+const GOALS: Array<{ id: Goal; icon: IconName }> = [
+  { id: 'gain_muscle', icon: 'dumbbell' },
+  { id: 'lose_weight', icon: 'flame' },
+  { id: 'tone', icon: 'sparkles' },
 ];
 const LEVELS: FitnessLevel[] = ['beginner', 'intermediate', 'advanced'];
 
@@ -31,7 +32,9 @@ export function GoalScreen({ navigation }: OnboardingScreenProps<'Goal'>) {
       <View style={{ gap: spacing.sm }}>
         {GOALS.map((g) => (
           <Pressable key={g.id} onPress={() => update({ goal: g.id })} style={[styles.goal, draft.goal === g.id && styles.goalSelected]}>
-            <Text style={styles.goalIcon}>{g.icon}</Text>
+            <View style={styles.goalIcon}>
+              <Icon name={g.icon} size={24} color={draft.goal === g.id ? colors.primary : colors.textMuted} />
+            </View>
             <Text style={styles.goalText}>{t.onboarding[`goal_${g.id}` as const]}</Text>
           </Pressable>
         ))}
@@ -63,6 +66,6 @@ export function GoalScreen({ navigation }: OnboardingScreenProps<'Goal'>) {
 const styles = StyleSheet.create({
   goal: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.card, padding: spacing.md, borderRadius: radius.md, borderWidth: 2, borderColor: colors.cardBorder },
   goalSelected: { borderColor: colors.primary, backgroundColor: '#251F4D' },
-  goalIcon: { fontSize: 28 },
+  goalIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
   goalText: { color: colors.text, fontSize: 17, fontWeight: '700' },
 });

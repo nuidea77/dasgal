@@ -2,6 +2,8 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { RootScreenProps } from '@/app/navigation/types';
 import { Body, Button, Caption, Card, Row, Screen, Title } from '@/components/ui';
+import { Icon } from '@/components/Icon';
+import { ExerciseThumb } from '@/components/ExerciseImage';
 import { getExercise } from '@/domain/plan/exercises';
 import { useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
@@ -36,9 +38,10 @@ export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetai
             return (
               <Card key={pe.key}>
                 <Pressable onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: pe.exerciseId, dayIndex: day.dayIndex, exerciseKey: pe.key })}>
-                  <Row style={{ justifyContent: 'space-between' }}>
+                  <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+                    <ExerciseThumb exerciseId={ex.id} size={56} />
                     <Body style={{ fontWeight: '700', flex: 1 }}>{name}</Body>
-                    <Caption>{ex.countingMode === 'timed' ? '⏱' : '🤖 AI'}</Caption>
+                    <Icon name={ex.countingMode === 'timed' ? 'timer' : 'cpu'} size={18} color={colors.textDim} />
                   </Row>
                 </Pressable>
                 <Row style={{ justifyContent: 'space-between' }}>
@@ -53,7 +56,10 @@ export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetai
             );
           })}
           {completed[day.date] ? (
-            <Body style={{ color: colors.accent, fontWeight: '700', textAlign: 'center' }}>✓ {t.plan.completed}</Body>
+            <Row style={{ justifyContent: 'center' }}>
+              <Icon name="check" color={colors.accent} size={18} />
+              <Body style={{ color: colors.accent, fontWeight: '700' }}>{t.plan.completed}</Body>
+            </Row>
           ) : (
             <Button title={t.plan.startWorkout} size="lg" onPress={() => navigation.navigate('WorkoutSession', { dayIndex: day.dayIndex })} />
           )}

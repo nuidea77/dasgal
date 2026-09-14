@@ -1,23 +1,25 @@
+export type BadgeIcon = 'party' | 'flame' | 'bolt' | 'trophy' | 'legs' | 'dumbbell' | 'hundred' | 'activity' | 'target' | 'graduation' | 'star' | 'award';
+
 export interface BadgeDef {
   id: string;
   /** i18n key suffix: badges.<id>.name/description */
-  icon: string;
+  icon: BadgeIcon;
 }
 
 export const BADGES: BadgeDef[] = [
-  { id: 'first_workout', icon: '🎉' },
-  { id: 'streak_3', icon: '🔥' },
-  { id: 'streak_7', icon: '🔥' },
-  { id: 'streak_14', icon: '⚡' },
-  { id: 'streak_30', icon: '🏆' },
-  { id: 'squats_100', icon: '🦵' },
-  { id: 'pushups_100', icon: '💪' },
-  { id: 'reps_1000', icon: '💯' },
-  { id: 'hard_day', icon: '🥵' },
-  { id: 'perfect_form', icon: '🎯' },
-  { id: 'program_complete', icon: '🎓' },
-  { id: 'level_5', icon: '⭐' },
-  { id: 'level_10', icon: '🌟' },
+  { id: 'first_workout', icon: 'party' },
+  { id: 'streak_3', icon: 'flame' },
+  { id: 'streak_7', icon: 'flame' },
+  { id: 'streak_14', icon: 'bolt' },
+  { id: 'streak_30', icon: 'trophy' },
+  { id: 'squats_100', icon: 'legs' },
+  { id: 'pushups_100', icon: 'dumbbell' },
+  { id: 'reps_1000', icon: 'hundred' },
+  { id: 'hard_day', icon: 'activity' },
+  { id: 'perfect_form', icon: 'target' },
+  { id: 'program_complete', icon: 'graduation' },
+  { id: 'level_5', icon: 'star' },
+  { id: 'level_10', icon: 'award' },
 ];
 
 export interface ProgressSnapshot {

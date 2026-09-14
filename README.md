@@ -73,7 +73,7 @@ npm test
 |---|---|
 | Профайл, BMI, зорилтот жин, илчлэг | `domain/profile/bmi.ts`, `features/onboarding/*` |
 | 7–30 хоногийн хөтөлбөр, өдрийн илчлэг | `domain/plan/generator.ts` (прогресс +10%/долоо хоног, deload, BMI/наснаас хамаарсан low-impact) |
-| Дасгал солих/өөрчлөх, заавар | `features/plan/DayDetailScreen`, `SwapExerciseScreen`, `ExerciseDetailScreen` (GIF байхгүй бол `StickFigureDemo` анимэйшн) |
+| Дасгал солих/өөрчлөх, заавар | `features/plan/DayDetailScreen`, `SwapExerciseScreen`, `ExerciseDetailScreen` (`assets/exercises/*.jpg` — AI-аар үүсгэсэн 12 зураг + `StickFigureDemo` анимэйшн) |
 | Бодит цагийн pose detection (edge) | `services/pose/usePoseDetector.ts` |
 | Бүтэн бие багтсан эсэх хүрээ | `domain/pose/framing.ts`, `components/FramingGuide.tsx` |
 | Автомат тоолуур, өнцгийн шалгалт | `domain/pose/repEngine.ts`, `analyzers/` |
@@ -90,3 +90,4 @@ npm test
 - Монгол хэлний TTS дуу төхөөрөмж дээр суулгаагүй бол систем англи/өгөгдмөл дуугаар унших боломжтой; Тохиргооноос хэл солино.
 - `burpee`, `mountain_climber` зэрэг нэг камераар найдвартай тоолоход хэцүү дасгалууд хугацаагаар (timed) явна; бусад 9 дасгал AI тоолуур/hold горимтой.
 - Хэрэглэгч AI буруу тоолсон гэж үзвэл `+1 гараар` товчоор засах боломжтой.
+- UI icon-ууд `components/Icon.tsx` (SVG line icons), emoji ашиглаагүй. Дасгалын зургууд Higgsfield платформ дээр (Soul 2.0 + GPT Image 2.5) үүсгэсэн, 1024×768 JPEG, нийт ~250KB.

@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { RootScreenProps } from '@/app/navigation/types';
 import { Body, Button, Card, Row, Screen, Stat, Title } from '@/components/ui';
 import { Confetti } from '@/components/Confetti';
+import { Icon } from '@/components/Icon';
 import { BADGES } from '@/domain/gamification/badges';
 import { useT } from '@/i18n';
 import { colors, spacing } from '@/theme';
@@ -23,7 +24,9 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
     <View style={{ flex: 1 }}>
       <Screen>
         <View style={styles.hero}>
-          <Text style={styles.emoji}>🎉</Text>
+          <View style={styles.heroIcon}>
+            <Icon name="trophy" size={44} color={colors.accent} />
+          </View>
           <Title style={{ textAlign: 'center' }}>{t.complete.title}</Title>
           <Body muted style={{ textAlign: 'center' }}>{t.complete.subtitle}</Body>
         </View>
@@ -36,12 +39,15 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
           <Row>
             <Stat label={t.complete.quality} value={`${Math.round(record.avgQuality * 100)}%`} />
             <Stat label={t.complete.xp} value={`+${outcome.xpGained}`} accent />
-            <Stat label={t.progress.streak} value={`${outcome.streakDays}🔥`} />
+            <Stat label={t.progress.streak} value={`${outcome.streakDays}`} />
           </Row>
         </Card>
         {outcome.leveledUp ? (
           <Card style={{ borderColor: colors.accent }}>
-            <Text style={styles.levelUp}>⬆️ {t.complete.levelUp}</Text>
+            <Row>
+              <Icon name="arrowUp" color={colors.accent} />
+              <Text style={styles.levelUp}>{t.complete.levelUp}</Text>
+            </Row>
             <Body>
               {t.progress.level} {outcome.level}
             </Body>
@@ -55,7 +61,7 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
               const info = t.badges[id as keyof typeof t.badges];
               return (
                 <Row key={id}>
-                  <Text style={{ fontSize: 28 }}>{def?.icon ?? '🏅'}</Text>
+                  <Icon name={def?.icon ?? 'award'} size={30} color={colors.warning} />
                   <View>
                     <Body style={{ fontWeight: '700' }}>{info?.name ?? id}</Body>
                     <Body muted>{info?.description}</Body>
@@ -75,6 +81,6 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
 
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.lg },
-  emoji: { fontSize: 72 },
+  heroIcon: { width: 88, height: 88, borderRadius: 44, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.cardBorder },
   levelUp: { color: colors.accent, fontWeight: '800', fontSize: 18 },
 });

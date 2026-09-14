@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { RootScreenProps } from '@/app/navigation/types';
 import { Body, Button } from '@/components/ui';
 import { FramingGuide } from '@/components/FramingGuide';
+import { Icon } from '@/components/Icon';
 import { PoseOverlay } from '@/components/PoseOverlay';
 import { createAnalyzer } from '@/domain/pose/analyzers';
 import { evaluateFraming } from '@/domain/pose/framing';
@@ -205,7 +206,7 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
         {/* Top bar */}
         <View style={styles.topBar}>
           <Pressable onPress={quit} hitSlop={12} style={styles.iconBtn}>
-            <Text style={styles.iconText}>✕</Text>
+            <Icon name="close" color={colors.white} />
           </Pressable>
           <View style={{ flex: 1 }}>
             <Text style={styles.exerciseName} numberOfLines={1}>{name}</Text>
@@ -318,7 +319,6 @@ const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
   topBar: { position: 'absolute', top: 48, left: spacing.md, right: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.overlay, alignItems: 'center', justifyContent: 'center' },
-  iconText: { color: colors.white, fontSize: 18, fontWeight: '700' },
   exerciseName: { color: colors.white, fontWeight: '800', fontSize: 18, textShadowColor: '#000', textShadowRadius: 6 },
   setLabel: { color: colors.textMuted, fontWeight: '600' },
   fps: { color: colors.textDim, fontSize: 11 },

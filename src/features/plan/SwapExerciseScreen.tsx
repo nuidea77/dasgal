@@ -1,7 +1,9 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { RootScreenProps } from '@/app/navigation/types';
-import { Body, Caption, Card, Screen, Title } from '@/components/ui';
+import { Body, Caption, Card, Row, Screen, Title } from '@/components/ui';
+import { Icon } from '@/components/Icon';
+import { ExerciseThumb } from '@/components/ExerciseImage';
 import { EXERCISES, getExercise } from '@/domain/plan/exercises';
 import { useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
@@ -37,15 +39,32 @@ export function SwapExerciseScreen({ route, navigation }: RootScreenProps<'SwapE
             }}
           >
             <Card>
-              <Body style={{ fontWeight: '700' }}>{t.exercises[id as keyof typeof t.exercises]?.name ?? id}</Body>
-              <Text style={styles.meta}>
-                {cand.muscles.join(' · ')} · {'★'.repeat(cand.difficulty)} · {cand.countingMode === 'timed' ? '⏱' : '🤖 AI'}
-              </Text>
+              <Row style={{ flexWrap: 'nowrap' }}>
+                <ExerciseThumb exerciseId={id} size={64} />
+                <View style={{ flex: 1, gap: 4 }}>
+                  <Body style={{ fontWeight: '700' }}>{t.exercises[id as keyof typeof t.exercises]?.name ?? id}</Body>
+                  <Row>
+                    <Text style={styles.meta}>{cand.muscles.join(' · ')}</Text>
+                    <Difficulty level={cand.difficulty} />
+                    <Icon name={cand.countingMode === 'timed' ? 'timer' : 'cpu'} size={14} color={colors.textDim} />
+                  </Row>
+                </View>
+              </Row>
             </Card>
           </Pressable>
         );
       })}
     </Screen>
+  );
+}
+
+function Difficulty({ level }: { level: number }) {
+  return (
+    <Row style={{ gap: 2 }}>
+      {[1, 2, 3].map((i) => (
+        <Icon key={i} name="star" size={12} color={i <= level ? colors.warning : colors.cardBorder} />
+      ))}
+    </Row>
   );
 }
 
