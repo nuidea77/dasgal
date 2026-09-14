@@ -6,8 +6,6 @@ import { Icon } from '@/components/Icon';
 import { ExerciseThumb } from '@/components/ExerciseImage';
 import { exercisesByMuscle, MUSCLE_GROUPS } from '@/domain/plan/exercises';
 import { format, useT } from '@/i18n';
-import { usePlanStore } from '@/store/usePlanStore';
-import { useUserStore } from '@/store/useUserStore';
 import { colors, radius, spacing } from '@/theme';
 import { useOnboardingDraft } from './draft';
 
@@ -22,15 +20,9 @@ const RECOMMENDED: Record<string, string[]> = {
 
 export function ExercisePickScreen({ navigation }: OnboardingScreenProps<'ExercisePick'>) {
   const t = useT();
-  const { draft, update, toggleExercise, toProfile } = useOnboardingDraft();
-  const setProfile = useUserStore((s) => s.setProfile);
+  const { draft, update, toggleExercise } = useOnboardingDraft();
   const selected = new Set(draft.preferredExercises);
   const enough = selected.size >= MIN_PICK;
-
-  const finish = () => {
-    setProfile(toProfile());
-    navigation.navigate('AssessmentResult');
-  };
 
   return (
     <Screen>
@@ -66,7 +58,7 @@ export function ExercisePickScreen({ navigation }: OnboardingScreenProps<'Exerci
           </View>
         </View>
       ))}
-      <Button title={t.common.next} size="lg" disabled={!enough} onPress={finish} />
+      <Button title={t.common.next} size="lg" disabled={!enough} onPress={() => navigation.navigate('Profile')} />
     </Screen>
   );
 }

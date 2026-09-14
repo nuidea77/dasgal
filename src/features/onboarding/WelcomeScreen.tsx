@@ -49,7 +49,7 @@ export function WelcomeScreen({ navigation }: OnboardingScreenProps<'Welcome'>) 
           <Caption style={{ flex: 1 }}>{t.onboarding.privacyNote}</Caption>
         </View>
         <View style={{ flex: 1 }} />
-        <Button title={t.common.start} size="lg" onPress={() => navigation.navigate('ProfileForm')} />
+        <Button title={t.common.start} size="lg" onPress={() => navigation.navigate('Sex')} />
       </Screen>
     </View>
   );

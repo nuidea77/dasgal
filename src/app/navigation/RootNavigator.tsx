@@ -7,8 +7,14 @@ import { useT } from '@/i18n';
 import { useUserStore } from '@/store/useUserStore';
 import { colors } from '@/theme';
 import { WelcomeScreen } from '@/features/onboarding/WelcomeScreen';
-import { ProfileFormScreen } from '@/features/onboarding/ProfileFormScreen';
-import { GoalScreen } from '@/features/onboarding/GoalScreen';
+import { SexStep } from '@/features/onboarding/steps/SexStep';
+import { AgeStep } from '@/features/onboarding/steps/AgeStep';
+import { WeightStep } from '@/features/onboarding/steps/WeightStep';
+import { HeightStep } from '@/features/onboarding/steps/HeightStep';
+import { GoalStep } from '@/features/onboarding/steps/GoalStep';
+import { LevelStep } from '@/features/onboarding/steps/LevelStep';
+import { TargetWeightStep } from '@/features/onboarding/steps/TargetWeightStep';
+import { ProfileStep } from '@/features/onboarding/steps/ProfileStep';
 import { PaceScreen } from '@/features/onboarding/PaceScreen';
 import { ExercisePickScreen } from '@/features/onboarding/ExercisePickScreen';
 import { AssessmentResultScreen } from '@/features/onboarding/AssessmentResultScreen';
@@ -70,10 +76,16 @@ export function RootNavigator() {
       ) : (
         <Onboarding.Navigator screenOptions={{ headerShown: false }}>
           <Onboarding.Screen name="Welcome" component={WelcomeScreen} />
-          <Onboarding.Screen name="ProfileForm" component={ProfileFormScreen} />
-          <Onboarding.Screen name="Goal" component={GoalScreen} />
+          <Onboarding.Screen name="Sex" component={SexStep} />
+          <Onboarding.Screen name="Age" component={AgeStep} />
+          <Onboarding.Screen name="Weight" component={WeightStep} />
+          <Onboarding.Screen name="Height" component={HeightStep} />
+          <Onboarding.Screen name="Goal" component={GoalStep} />
+          <Onboarding.Screen name="Level" component={LevelStep} />
+          <Onboarding.Screen name="TargetWeight" component={TargetWeightStep} />
           <Onboarding.Screen name="Pace" component={PaceScreen} />
           <Onboarding.Screen name="ExercisePick" component={ExercisePickScreen} />
+          <Onboarding.Screen name="Profile" component={ProfileStep} />
           <Onboarding.Screen name="AssessmentResult" component={AssessmentResultScreen} />
         </Onboarding.Navigator>
       )}

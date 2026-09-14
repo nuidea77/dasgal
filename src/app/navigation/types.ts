@@ -4,10 +4,16 @@ import type { RecordOutcome } from '@/store/useProgressStore';
 
 export type OnboardingStackParamList = {
   Welcome: undefined;
-  ProfileForm: undefined;
+  Sex: undefined;
+  Age: undefined;
+  Weight: undefined;
+  Height: undefined;
   Goal: undefined;
+  Level: undefined;
+  TargetWeight: undefined;
   Pace: undefined;
   ExercisePick: undefined;
+  Profile: undefined;
   AssessmentResult: undefined;
 };
 

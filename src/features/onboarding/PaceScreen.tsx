@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { OnboardingScreenProps } from '@/app/navigation/types';
-import { Body, Button, Caption, Row, Screen, Title } from '@/components/ui';
+import { Body, Caption, Row } from '@/components/ui';
+import { OnboardingStep } from './OnboardingStep';
+import { TOTAL_STEPS } from './steps';
 import { Icon, IconName } from '@/components/Icon';
 import { paceOptions } from '@/domain/profile/timeline';
 import { dailyBurnTarget, todayIso } from '@/domain/plan/generator';
@@ -27,9 +29,17 @@ export function PaceScreen({ navigation }: OnboardingScreenProps<'Pace'>) {
   };
 
   return (
-    <Screen>
-      <Title>{t.onboarding.paceTitle}</Title>
-      <Caption>{t.onboarding.paceSubtitle}</Caption>
+    <OnboardingStep
+      title={t.onboarding.paceTitle}
+      subtitle={t.onboarding.paceSubtitle}
+      step={8}
+      total={TOTAL_STEPS}
+      onBack={() => navigation.goBack()}
+      onNext={() => {
+        choose(draft.pace);
+        navigation.navigate('ExercisePick');
+      }}
+    >
       {options.map((o) => {
         const selected = draft.pace === o.pace;
         return (
@@ -56,17 +66,8 @@ export function PaceScreen({ navigation }: OnboardingScreenProps<'Pace'>) {
           </Pressable>
         );
       })}
-      <Body muted>{format(t.onboarding.deltaKg, { kg: Math.round((target - weight) * 10) / 10 })}</Body>
-      <View style={{ flex: 1 }} />
-      <Button
-        title={t.common.next}
-        size="lg"
-        onPress={() => {
-          choose(draft.pace);
-          navigation.navigate('ExercisePick');
-        }}
-      />
-    </Screen>
+      <Body muted style={{ textAlign: 'center' }}>{format(t.onboarding.deltaKg, { kg: Math.round((target - weight) * 10) / 10 })}</Body>
+    </OnboardingStep>
   );
 }
 

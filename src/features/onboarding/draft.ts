@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { FitnessLevel, Goal, Pace, Sex, UserProfile } from '@/domain/profile/types';
+import { HeightUnit, WeightUnit } from '@/domain/profile/units';
 
 export interface Draft {
   name: string;
@@ -14,6 +15,9 @@ export interface Draft {
   preferredExercises: string[];
   programDays: number;
   daysPerWeek: number;
+  /** Display units; the profile itself always stores cm/kg. */
+  heightUnit: HeightUnit;
+  weightUnit: WeightUnit;
 }
 
 interface DraftState {
@@ -29,6 +33,7 @@ export const useOnboardingDraft = create<DraftState>((set, get) => ({
   draft: {
     name: '', age: 28, sex: 'male', heightCm: 170, weightKg: 70, goal: 'tone', level: 'beginner',
     targetWeightKg: 70, pace: 'moderate', preferredExercises: [], programDays: 28, daysPerWeek: 4,
+    heightUnit: 'cm', weightUnit: 'kg',
   },
   update: (patch) => set({ draft: { ...get().draft, ...patch } }),
   toggleExercise: (id) => {
