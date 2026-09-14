@@ -9,7 +9,7 @@ import { paceOptions } from '@/domain/profile/timeline';
 import { dailyBurnTarget, todayIso } from '@/domain/plan/generator';
 import { Pace } from '@/domain/profile/types';
 import { format, useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 import { useOnboardingDraft } from './draft';
 
 const ICONS: Record<Pace, IconName> = { easy: 'heart', moderate: 'activity', hard: 'flame' };
@@ -74,6 +74,6 @@ export function PaceScreen({ navigation }: OnboardingScreenProps<'Pace'>) {
 const styles = StyleSheet.create({
   card: { backgroundColor: colors.card, borderRadius: radius.md, padding: spacing.md, borderWidth: 2, borderColor: colors.cardBorder, gap: 6 },
   cardSelected: { borderColor: colors.accent, backgroundColor: '#163D33' },
-  name: { color: colors.text, fontSize: 18, fontWeight: '800' },
-  weeks: { color: colors.text, fontSize: 18, fontWeight: '800' },
+  name: { ...typography.h3, fontSize: 18, fontFamily: fonts.bold },
+  weeks: { ...typography.numberMd, fontSize: 18, lineHeight: 23 },
 });

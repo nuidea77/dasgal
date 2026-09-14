@@ -14,7 +14,7 @@ import { titleName } from '@/features/gamification/titleName';
 import { format } from '@/i18n';
 import { useT } from '@/i18n';
 import { useProgressStore } from '@/store/useProgressStore';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 
 export function ProgressScreen() {
   const t = useT();
@@ -80,7 +80,7 @@ export function ProgressScreen() {
       {history.map((r) => (
         <Card key={r.id}>
           <Row style={{ justifyContent: 'space-between' }}>
-            <Body style={{ fontWeight: '700' }}>{r.date}</Body>
+            <Body strong>{r.date}</Body>
             <Caption>+{r.xp} XP</Caption>
           </Row>
           <Caption>
@@ -93,10 +93,10 @@ export function ProgressScreen() {
 }
 
 const styles = StyleSheet.create({
-  rank: { color: colors.accent, fontSize: 26, fontWeight: '900' },
+  rank: { ...typography.h1, color: colors.accent, fontFamily: fonts.black, fontSize: 26, lineHeight: 32 },
   levelPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.bgElevated, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill },
-  levelText: { color: colors.text, fontWeight: '800' },
+  levelText: { ...typography.numberSm },
   badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   badge: { width: '30%', flexGrow: 1, backgroundColor: colors.card, borderRadius: radius.md, paddingVertical: spacing.md, paddingHorizontal: spacing.sm, alignItems: 'center', gap: spacing.xs, borderWidth: 1, borderColor: colors.cardBorder },
-  badgeName: { color: colors.text, fontSize: 12, fontWeight: '600', textAlign: 'center' },
+  badgeName: { ...typography.caption, color: colors.text, fontFamily: fonts.semibold, fontSize: 12, textAlign: 'center' },
 });

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { OnboardingScreenProps } from '@/app/navigation/types';
 import { FitnessLevel } from '@/domain/profile/types';
 import { useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 import { OnboardingStep } from '../OnboardingStep';
 import { TOTAL_STEPS } from '../steps';
 import { useOnboardingDraft } from '../draft';
@@ -39,5 +39,5 @@ export function LevelStep({ navigation }: OnboardingScreenProps<'Level'>) {
 const styles = StyleSheet.create({
   row: { paddingVertical: 18, borderRadius: radius.md, backgroundColor: colors.card, alignItems: 'center' },
   rowOn: { backgroundColor: colors.primary },
-  label: { color: colors.textMuted, fontSize: 16, fontWeight: '700' },
+  label: { ...typography.h3, color: colors.textMuted, fontFamily: fonts.bold, fontSize: 16 },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
-import { colors } from '@/theme';
+import { colors, typography } from '@/theme';
 
 interface Props {
   /** 0..1 */
@@ -54,6 +54,6 @@ export function ProgressRing({ ratio, size = 116, thickness = 10, value, label, 
 
 const styles = StyleSheet.create({
   center: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
-  value: { color: colors.text, fontSize: 22, fontWeight: '900' },
-  label: { color: colors.textDim, fontSize: 11, marginTop: 1 },
+  value: { ...typography.numberLg, fontSize: 22, lineHeight: 26 },
+  label: { ...typography.caption, fontSize: 11, lineHeight: 14, marginTop: 1 },
 });

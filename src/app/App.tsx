@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
-import { AppState } from 'react-native';
+import React, { useCallback, useEffect } from 'react';
+import { AppState, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootNavigator } from './navigation/RootNavigator';
 import { useI18nStore } from '@/i18n';
@@ -11,6 +13,10 @@ import { usePlanStore } from '@/store/usePlanStore';
 import { useProgressStore } from '@/store/useProgressStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useUserStore } from '@/store/useUserStore';
+import { colors } from '@/theme';
+
+// Hold the splash until Inter is ready, so no screen renders in the system font first.
+void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 /** Keeps the i18n store in sync with the persisted language setting. */
 function useLanguageSync() {
@@ -52,10 +58,29 @@ function useForegroundTasks() {
 export default function App() {
   useLanguageSync();
   useForegroundTasks();
+  // Inter is bundled as five static weights (assets/fonts, SIL OFL) rather than
+  // pulled from the @expo-google-fonts package, which would ship all 36 faces.
+  const [fontsLoaded, fontError] = useFonts({
+    Inter_400Regular: require('../../assets/fonts/Inter-Regular.ttf'),
+    Inter_500Medium: require('../../assets/fonts/Inter-Medium.ttf'),
+    Inter_600SemiBold: require('../../assets/fonts/Inter-SemiBold.ttf'),
+    Inter_700Bold: require('../../assets/fonts/Inter-Bold.ttf'),
+    Inter_900Black: require('../../assets/fonts/Inter-Black.ttf'),
+  });
+  const ready = fontsLoaded || !!fontError;
+
+  const onLayout = useCallback(() => {
+    if (ready) void SplashScreen.hideAsync().catch(() => undefined);
+  }, [ready]);
+
+  if (!ready) return null;
+
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
-      <RootNavigator />
+      <View style={{ flex: 1, backgroundColor: colors.bg }} onLayout={onLayout}>
+        <StatusBar style="light" />
+        <RootNavigator />
+      </View>
     </SafeAreaProvider>
   );
 }

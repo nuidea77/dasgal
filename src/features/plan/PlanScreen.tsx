@@ -15,7 +15,7 @@ import { format, useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
 import { useProgressStore } from '@/store/useProgressStore';
 import { useUserStore } from '@/store/useUserStore';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 
 export function PlanScreen() {
   const t = useT();
@@ -133,12 +133,12 @@ export function PlanScreen() {
               </Body>
               <Row>
                 <Icon name="flame" color={colors.warning} size={18} />
-                <Body style={{ color: colors.warning, fontWeight: '700' }}>{format(t.plan.burnApprox, { kcal: estimateDayCalories(todayDay, profile.weightKg) })}</Body>
+                <Body strong style={{ color: colors.warning }}>{format(t.plan.burnApprox, { kcal: estimateDayCalories(todayDay, profile.weightKg) })}</Body>
               </Row>
               {completed[todayDay.date] ? (
                 <Row>
                   <Icon name="check" color={colors.accent} size={18} />
-                  <Body style={{ color: colors.accent, fontWeight: '700' }}>{t.plan.completed}</Body>
+                  <Body strong style={{ color: colors.accent }}>{t.plan.completed}</Body>
                 </Row>
               ) : (
                 <Button title={t.plan.startWorkout} onPress={() => navigation.navigate('WorkoutSession', { dayIndex: todayDay.dayIndex })} />
@@ -156,7 +156,7 @@ export function PlanScreen() {
               <Icon name="heart" color={colors.accent} size={18} />
               <Body muted>{t.plan.healthToday}</Body>
             </Row>
-            <Body style={{ fontWeight: '700' }}>
+            <Body strong>
               {format(t.plan.healthTotals, { steps: healthToday.steps, kcal: healthToday.activeCalories })}
             </Body>
           </Row>
@@ -174,6 +174,6 @@ export function PlanScreen() {
 
 const styles = StyleSheet.create({
   todayCard: { borderColor: colors.primary, gap: spacing.sm },
-  targetWeight: { color: colors.text, fontSize: 26, fontWeight: '900' },
-  miniStat: { color: colors.textMuted, fontWeight: '700', fontSize: 13 },
+  targetWeight: { ...typography.numberLg, fontSize: 27, lineHeight: 31 },
+  miniStat: { ...typography.caption, color: colors.textMuted, fontFamily: fonts.bold },
 });

@@ -9,7 +9,7 @@ import { ExerciseThumb } from '@/components/ExerciseImage';
 import { exercisesByMuscle, MUSCLE_GROUPS } from '@/domain/plan/exercises';
 import { format, useT } from '@/i18n';
 import { useUserStore } from '@/store/useUserStore';
-import { colors, radius, spacing } from '@/theme';
+import { colors, radius, spacing, typography } from '@/theme';
 
 /** Browsable exercise library grouped by muscle (5+ exercises per group). */
 export function LibraryScreen() {
@@ -24,12 +24,17 @@ export function LibraryScreen() {
       {MUSCLE_GROUPS.map((group) => {
         const list = exercisesByMuscle(group);
         return (
-          <View key={group} style={{ gap: spacing.sm }}>
+          <View key={group} style={styles.section}>
             <View style={styles.header}>
               <Subheading>{t.muscles[group]}</Subheading>
               <Caption>{format(t.library.count, { n: list.length })}</Caption>
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.sm }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.rail}
+              contentContainerStyle={styles.railContent}
+            >
               {list.map((ex) => {
                 const kcal = Math.round(ex.kcalPerUnit * (weightKg / 70) * 100) / 100;
                 return (
@@ -59,9 +64,14 @@ export function LibraryScreen() {
 }
 
 const styles = StyleSheet.create({
+  // The section must not grow to the width of the rail's content, or the
+  // header's count is pushed off the right edge of the screen.
+  section: { gap: spacing.sm, width: '100%' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+  rail: { marginHorizontal: -spacing.md },
+  railContent: { gap: spacing.sm, paddingHorizontal: spacing.md },
   card: { width: 140, gap: 4, backgroundColor: colors.card, borderRadius: radius.md, padding: 6, borderWidth: 1, borderColor: colors.cardBorder },
-  name: { fontSize: 14, fontWeight: '700', minHeight: 36, color: colors.text },
+  name: { ...typography.bodyStrong, fontSize: 14, lineHeight: 18, minHeight: 36 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { color: colors.textDim, fontSize: 11 },
+  metaText: { ...typography.caption, fontSize: 11, lineHeight: 14 },
 });

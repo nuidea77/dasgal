@@ -6,7 +6,7 @@ import { Caption } from '@/components/ui';
 import { healthyWeightRange } from '@/domain/profile/bmi';
 import { kgToLb, lbToKg } from '@/domain/profile/units';
 import { format, useT } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { colors, spacing, typography } from '@/theme';
 import { OnboardingStep } from '../OnboardingStep';
 import { TOTAL_STEPS } from '../steps';
 import { useOnboardingDraft } from '../draft';
@@ -46,5 +46,5 @@ export function TargetWeightStep({ navigation }: OnboardingScreenProps<'TargetWe
 }
 
 const styles = StyleSheet.create({
-  delta: { color: colors.accent, fontSize: 18, fontWeight: '800' },
+  delta: { ...typography.numberMd, color: colors.accent, fontSize: 18, lineHeight: 22 },
 });

@@ -4,7 +4,7 @@ import { OnboardingScreenProps } from '@/app/navigation/types';
 import { Icon } from '@/components/Icon';
 import { useT } from '@/i18n';
 import { useUserStore } from '@/store/useUserStore';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 import { OnboardingStep } from '../OnboardingStep';
 import { TOTAL_STEPS } from '../steps';
 import { useOnboardingDraft } from '../draft';
@@ -59,7 +59,7 @@ export function ProfileStep({ navigation }: OnboardingScreenProps<'Profile'>) {
 
 const styles = StyleSheet.create({
   avatar: { width: 108, height: 108, borderRadius: 54, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
-  label: { color: colors.textMuted, fontWeight: '600' },
-  input: { backgroundColor: colors.bgElevated, color: colors.text, borderRadius: radius.sm, padding: spacing.md, fontSize: 17, borderWidth: 1, borderColor: colors.cardBorder },
+  label: { ...typography.caption, color: colors.textMuted, fontFamily: fonts.semibold, fontSize: 13 },
+  input: { backgroundColor: colors.bgElevated, color: colors.text, borderRadius: radius.sm, padding: spacing.md, ...typography.body, fontSize: 17, borderWidth: 1, borderColor: colors.cardBorder },
   error: { color: colors.danger },
 });

@@ -10,7 +10,7 @@ import { format } from '@/i18n';
 import { useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
 import { useUserStore } from '@/store/useUserStore';
-import { colors, spacing } from '@/theme';
+import { colors, fonts, spacing, typography } from '@/theme';
 
 export function AssessmentResultScreen({ navigation }: OnboardingScreenProps<'AssessmentResult'>) {
   const t = useT();
@@ -44,7 +44,7 @@ export function AssessmentResultScreen({ navigation }: OnboardingScreenProps<'As
           <Body muted>{t.onboarding.bmi}</Body>
           <Text style={[styles.big, { color: categoryColor }]}>{assessment.bmi}</Text>
         </Row>
-        <Body style={{ color: categoryColor, fontWeight: '700' }}>{t.onboarding[`bmi_${assessment.category}` as const]}</Body>
+        <Body strong style={{ color: categoryColor }}>{t.onboarding[`bmi_${assessment.category}` as const]}</Body>
         <Caption>
           {range.min} – {range.max} kg
         </Caption>
@@ -79,7 +79,7 @@ export function AssessmentResultScreen({ navigation }: OnboardingScreenProps<'As
               {format(t.onboarding.deltaKg, { kg: timeline.deltaKg > 0 ? `+${timeline.deltaKg}` : timeline.deltaKg })} · {format(t.onboarding.weeklyRate, { kg: timeline.weeklyRateKg })}
             </Caption>
             <Caption>{format(t.onboarding.workoutBurn, { kcal: timeline.weeklyBurn })}</Caption>
-            <Body style={{ color: colors.accent, fontWeight: '700' }}>
+            <Body strong style={{ color: colors.accent }}>
               {t.onboarding[`pace_${profile.pace}` as const]} · {format(t.onboarding.suggestedProgram, { days: profile.programDays, perWeek: profile.daysPerWeek })}
             </Body>
             <Button title={t.onboarding.changePace} variant="ghost" onPress={() => navigation.navigate('Pace')} />
@@ -101,7 +101,7 @@ export function AssessmentResultScreen({ navigation }: OnboardingScreenProps<'As
 }
 
 const styles = StyleSheet.create({
-  big: { fontSize: 40, fontWeight: '900' },
-  weeks: { fontSize: 26, fontWeight: '800', color: colors.text },
+  big: { ...typography.numberLg, fontSize: 40, lineHeight: 44 },
+  weeks: { ...typography.numberLg, fontSize: 26, lineHeight: 30, fontFamily: fonts.bold },
   divider: { height: 1, backgroundColor: colors.cardBorder, marginVertical: spacing.sm },
 });

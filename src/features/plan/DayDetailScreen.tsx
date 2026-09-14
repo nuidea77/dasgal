@@ -10,7 +10,7 @@ import { format } from '@/i18n';
 import { useUserStore } from '@/store/useUserStore';
 import { useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
-import { colors, spacing } from '@/theme';
+import { colors, spacing, typography } from '@/theme';
 
 export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetail'>) {
   const t = useT();
@@ -37,7 +37,7 @@ export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetai
         <>
           <Row>
             <Icon name="flame" color={colors.warning} size={18} />
-            <Body style={{ color: colors.warning, fontWeight: '700' }}>
+            <Body strong style={{ color: colors.warning }}>
               {t.plan.burn}: {format(t.plan.burnApprox, { kcal: estimateDayCalories(day, weightKg) })}
             </Body>
           </Row>
@@ -51,7 +51,7 @@ export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetai
                   <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
                     <ExerciseThumb exerciseId={ex.id} size={56} />
                     <View style={{ flex: 1 }}>
-                      <Body style={{ fontWeight: '700' }}>{name}</Body>
+                      <Body strong>{name}</Body>
                       <Caption>{format(t.plan.burnApprox, { kcal: estimateExerciseCalories(pe, weightKg) })}</Caption>
                     </View>
                     <Icon name={ex.countingMode === 'timed' ? 'timer' : 'cpu'} size={18} color={colors.textDim} />
@@ -71,7 +71,7 @@ export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetai
           {completed[day.date] ? (
             <Row style={{ justifyContent: 'center' }}>
               <Icon name="check" color={colors.accent} size={18} />
-              <Body style={{ color: colors.accent, fontWeight: '700' }}>{t.plan.completed}</Body>
+              <Body strong style={{ color: colors.accent }}>{t.plan.completed}</Body>
             </Row>
           ) : (
             <Button title={t.plan.startWorkout} size="lg" onPress={() => navigation.navigate('WorkoutSession', { dayIndex: day.dayIndex })} />
@@ -101,6 +101,6 @@ function Stepper({ value, onChange, step = 1, suffix }: { value: number; onChang
 const styles = StyleSheet.create({
   stepper: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, backgroundColor: colors.bgElevated, borderRadius: 999, paddingHorizontal: 4 },
   stepBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
-  stepText: { color: colors.primary, fontSize: 20, fontWeight: '800' },
-  stepValue: { color: colors.text, fontWeight: '700', minWidth: 60, textAlign: 'center' },
+  stepText: { ...typography.numberMd, color: colors.primary },
+  stepValue: { ...typography.numberSm, fontSize: 15, lineHeight: 20, minWidth: 60, textAlign: 'center' },
 });

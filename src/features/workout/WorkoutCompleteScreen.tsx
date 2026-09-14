@@ -12,7 +12,7 @@ import { XpBar } from '@/components/XpBar';
 import { titleName } from '@/features/gamification/titleName';
 import { useProgressStore } from '@/store/useProgressStore';
 import { useT } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { colors, fonts, spacing, typography } from '@/theme';
 
 export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'WorkoutComplete'>) {
   const t = useT();
@@ -80,7 +80,7 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
                 <Row key={id}>
                   <AwardMedal badgeId={id} style={styleFor(id)} size={54} />
                   <View style={{ flex: 1 }}>
-                    <Body style={{ fontWeight: '700' }}>{info?.name ?? id}</Body>
+                    <Body strong>{info?.name ?? id}</Body>
                     <Body muted>{info?.description}</Body>
                   </View>
                 </Row>
@@ -99,6 +99,6 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.lg },
   heroIcon: { width: 88, height: 88, borderRadius: 44, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.cardBorder },
-  levelUp: { color: colors.accent, fontWeight: '800', fontSize: 18 },
-  gain: { color: colors.accent, fontWeight: '900', fontSize: 20 },
+  levelUp: { ...typography.h3, color: colors.accent, fontFamily: fonts.bold, fontSize: 18 },
+  gain: { ...typography.numberMd, color: colors.accent, fontFamily: fonts.black },
 });

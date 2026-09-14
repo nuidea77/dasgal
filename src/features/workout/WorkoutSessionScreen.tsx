@@ -24,7 +24,7 @@ import { usePlanStore } from '@/store/usePlanStore';
 import { useProgressStore } from '@/store/useProgressStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useUserStore } from '@/store/useUserStore';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 import { createSession, currentExercise, sessionReducer, summarize } from './sessionReducer';
 
 export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'WorkoutSession'>) {
@@ -364,20 +364,20 @@ const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
   topBar: { position: 'absolute', top: 48, left: spacing.md, right: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.overlay, alignItems: 'center', justifyContent: 'center' },
-  exerciseName: { color: colors.white, fontWeight: '800', fontSize: 18, textShadowColor: '#000', textShadowRadius: 6 },
-  setLabel: { color: colors.textMuted, fontWeight: '600' },
-  fps: { color: colors.textDim, fontSize: 11 },
+  exerciseName: { ...typography.h3, color: colors.white, fontFamily: fonts.bold, fontSize: 18, textShadowColor: '#000', textShadowRadius: 6 },
+  setLabel: { ...typography.caption, color: colors.textMuted, fontFamily: fonts.semibold, fontSize: 14, lineHeight: 18 },
+  fps: { ...typography.numberSm, color: colors.textDim, fontSize: 11, lineHeight: 14 },
   modelBanner: { position: 'absolute', top: 100, alignSelf: 'center', backgroundColor: colors.overlay, padding: spacing.sm, borderRadius: radius.sm },
-  countdown: { fontSize: 120, fontWeight: '900', color: colors.white, textShadowColor: '#000', textShadowRadius: 12 },
-  countdownLabel: { fontSize: 22, color: colors.white, fontWeight: '700' },
+  countdown: { ...typography.counter, fontSize: 120, lineHeight: 128, letterSpacing: -6, textShadowColor: '#000', textShadowRadius: 12 },
+  countdownLabel: { ...typography.h2, color: colors.white },
   cheer: { backgroundColor: 'rgba(46,230,166,0.92)' },
-  restCheer: { color: colors.accent, fontSize: 20, fontWeight: '800', marginBottom: -4 },
-  restProgress: { color: colors.textDim, fontWeight: '700', marginTop: 2 },
+  restCheer: { ...typography.h2, color: colors.accent, fontSize: 20, marginBottom: -4 },
+  restProgress: { ...typography.numberSm, color: colors.textDim, marginTop: 2 },
   feedback: { position: 'absolute', bottom: spacing.lg, alignSelf: 'center', backgroundColor: 'rgba(255,92,122,0.9)', paddingVertical: 12, paddingHorizontal: 20, borderRadius: radius.pill },
-  feedbackText: { color: colors.white, fontWeight: '800', fontSize: 18 },
+  feedbackText: { ...typography.h3, color: colors.white, fontFamily: fonts.bold, fontSize: 17 },
   hud: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, paddingBottom: spacing.xl, gap: spacing.md, backgroundColor: colors.bg },
-  counter: { fontSize: 72, fontWeight: '900', color: colors.white, lineHeight: 78 },
-  counterTarget: { fontSize: 28, color: colors.textDim, fontWeight: '700' },
-  counterLabel: { color: colors.textMuted, fontWeight: '600', marginTop: -6 },
+  counter: { ...typography.counter, fontSize: 72, lineHeight: 76, letterSpacing: -3 },
+  counterTarget: { ...typography.numberLg, fontSize: 28, lineHeight: 32, color: colors.textDim, fontFamily: fonts.bold },
+  counterLabel: { ...typography.caption, color: colors.textMuted, fontFamily: fonts.semibold, fontSize: 14, lineHeight: 18, marginTop: -4 },
   hudButtons: { gap: spacing.sm, alignItems: 'stretch', minWidth: 150 },
 });

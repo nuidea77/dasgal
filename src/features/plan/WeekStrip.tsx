@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DayState, StripDay, weekIndexOf } from '@/domain/plan/weekStrip';
 import { useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 
 interface Props {
   strip: StripDay[];
@@ -102,16 +102,16 @@ export function WeekStrip({ strip, today, onSelect }: Props) {
 
 const styles = StyleSheet.create({
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headLabel: { color: colors.textMuted, fontSize: 13, fontWeight: '700' },
+  headLabel: { ...typography.bodyStrong, color: colors.textMuted, fontSize: 14 },
   headRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  headCount: { color: colors.textDim, fontSize: 12, fontWeight: '700' },
-  jump: { color: colors.primary, fontSize: 12, fontWeight: '800' },
+  headCount: { ...typography.numberSm, color: colors.textDim, fontSize: 12, lineHeight: 16 },
+  jump: { ...typography.caption, color: colors.primary, fontFamily: fonts.bold, fontSize: 12 },
   page: { flexDirection: 'row', justifyContent: 'space-between' },
   cell: { flex: 1, alignItems: 'center', gap: 3, paddingVertical: 10, borderRadius: radius.md, marginHorizontal: 2 },
   cellToday: { backgroundColor: colors.accent },
   cellOutside: { opacity: 0.25 },
-  weekday: { color: colors.textDim, fontSize: 11, fontWeight: '700' },
-  date: { color: colors.text, fontSize: 17, fontWeight: '800' },
+  weekday: { ...typography.overline, fontSize: 10, letterSpacing: 0.8 },
+  date: { ...typography.numberSm, fontSize: 17, lineHeight: 21 },
   textOnAccent: { color: colors.bg },
   dot: { width: 5, height: 5, borderRadius: 3 },
 });

@@ -5,7 +5,7 @@ import { Icon, IconName } from '@/components/Icon';
 import { targetWeight } from '@/domain/profile/bmi';
 import { Goal } from '@/domain/profile/types';
 import { useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 import { OnboardingStep } from '../OnboardingStep';
 import { TOTAL_STEPS } from '../steps';
 import { useOnboardingDraft } from '../draft';
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.card, padding: spacing.md, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.cardBorder },
   rowOn: { borderColor: colors.primary, backgroundColor: '#251F4D' },
   icon: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
-  label: { flex: 1, color: colors.textMuted, fontSize: 16, fontWeight: '700' },
+  label: { ...typography.h3, flex: 1, color: colors.textMuted, fontFamily: fonts.bold, fontSize: 16 },
   check: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.cardBorder, alignItems: 'center', justifyContent: 'center' },
   checkOn: { backgroundColor: colors.primary, borderColor: colors.primary },
 });

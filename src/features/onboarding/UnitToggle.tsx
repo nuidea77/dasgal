@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius } from '@/theme';
+import { colors, radius, typography } from '@/theme';
 
 /** Small segmented control, e.g. cm / ft or kg / lb. */
 export function UnitToggle<T extends string>({ options, value, onChange }: { options: readonly T[]; value: T; onChange: (v: T) => void }) {
@@ -22,6 +22,6 @@ const styles = StyleSheet.create({
   wrap: { flexDirection: 'row', alignSelf: 'center', backgroundColor: colors.card, borderRadius: radius.pill, padding: 4, gap: 4 },
   seg: { paddingVertical: 8, paddingHorizontal: 22, borderRadius: radius.pill },
   segOn: { backgroundColor: colors.primary },
-  text: { color: colors.textMuted, fontWeight: '700', fontSize: 13 },
+  text: { ...typography.overline, color: colors.textMuted, fontSize: 12, letterSpacing: 1 },
   textOn: { color: colors.white },
 });

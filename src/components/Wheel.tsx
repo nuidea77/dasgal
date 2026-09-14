@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Animated, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { colors } from '@/theme';
+import { colors, fonts, typography } from '@/theme';
 
 interface BaseProps {
   min: number;
@@ -72,7 +72,7 @@ export function VerticalWheel({ min, max, step = 1, value, onChange, format, acc
           const selected = i === indexOf(value);
           return (
             <Animated.View key={v} style={[styles.vItem, { height: itemSize, opacity, transform: [{ scale }] }]}>
-              <Text style={[styles.vText, selected && { color: accent, fontSize: 40, fontWeight: '900' }]}>{format ? format(v) : v}</Text>
+              <Text style={[styles.vText, selected && { color: accent, fontSize: 40, fontFamily: fonts.black }]}>{format ? format(v) : v}</Text>
             </Animated.View>
           );
         })}
@@ -129,7 +129,7 @@ export function HorizontalWheel({ min, max, step = 1, value, onChange, format, a
             const selected = i === indexOf(value);
             return (
               <Animated.View key={v} style={[styles.hItem, { width: itemSize, opacity, transform: [{ scale }] }]}>
-                <Text style={[styles.hText, selected && { color: accent, fontSize: 42, fontWeight: '900' }]}>{format ? format(v) : v}</Text>
+                <Text style={[styles.hText, selected && { color: accent, fontSize: 42, fontFamily: fonts.black }]}>{format ? format(v) : v}</Text>
               </Animated.View>
             );
           })}
@@ -145,9 +145,9 @@ const styles = StyleSheet.create({
   vWrap: { alignSelf: 'stretch' },
   vLine: { position: 'absolute', left: '18%', right: '18%', height: 2, borderRadius: 1, zIndex: 2 },
   vItem: { alignItems: 'center', justifyContent: 'center' },
-  vText: { color: colors.text, fontSize: 26, fontWeight: '700' },
+  vText: { ...typography.numberLg, fontSize: 26, lineHeight: 30, fontFamily: fonts.bold },
   hItem: { alignItems: 'center', justifyContent: 'center', height: 80 },
-  hText: { color: colors.text, fontSize: 24, fontWeight: '700' },
-  unit: { color: colors.textMuted, fontSize: 14, fontWeight: '700', marginTop: 6, textTransform: 'uppercase', letterSpacing: 1 },
+  hText: { ...typography.numberLg, fontSize: 24, lineHeight: 28, fontFamily: fonts.bold },
+  unit: { ...typography.overline, color: colors.textMuted, fontSize: 12, letterSpacing: 1.6, marginTop: 6 },
   pointer: { width: 0, height: 0, borderLeftWidth: 8, borderRightWidth: 8, borderBottomWidth: 10, borderLeftColor: 'transparent', borderRightColor: 'transparent', transform: [{ rotate: '180deg' }], marginTop: 2 },
 });

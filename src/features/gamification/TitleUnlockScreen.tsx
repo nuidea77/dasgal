@@ -10,7 +10,7 @@ import { nextTitle, titleForLevel } from '@/domain/gamification/titles';
 import { TIER_COLORS, tierForLevel } from '@/domain/gamification/tiers';
 import { format, useT } from '@/i18n';
 import { useProgressStore } from '@/store/useProgressStore';
-import { colors, radius, spacing } from '@/theme';
+import { colors, radius, spacing, typography } from '@/theme';
 import { titleName } from './titleName';
 
 /** Full-screen celebration shown when a new rank title is reached. */
@@ -144,19 +144,19 @@ const styles = StyleSheet.create({
   ringCircle: { position: 'absolute', width: MEDAL, height: MEDAL, borderRadius: MEDAL / 2, borderWidth: 1.5 },
   medal: { width: MEDAL, height: MEDAL, borderRadius: MEDAL / 2, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 12 },
   medalInner: { width: MEDAL - 22, height: MEDAL - 22, borderRadius: (MEDAL - 22) / 2, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', gap: 2 },
-  level: { fontSize: 44, fontWeight: '900', lineHeight: 48 },
+  level: { ...typography.numberLg, fontSize: 44, lineHeight: 48 },
   pill: { borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 4, marginBottom: spacing.sm },
-  pillText: { fontSize: 12, fontWeight: '800', letterSpacing: 2 },
-  congrats: { fontSize: 24, fontWeight: '800', color: colors.text },
-  title: { fontSize: 40, fontWeight: '900', textAlign: 'center', marginTop: 2, letterSpacing: -0.5 },
-  body: { color: colors.textMuted, fontSize: 15, marginTop: 4, textAlign: 'center' },
+  pillText: { ...typography.overline },
+  congrats: { ...typography.h2, fontSize: 23 },
+  title: { ...typography.display, textAlign: 'center', marginTop: 2 },
+  body: { ...typography.bodyMuted, marginTop: 4, textAlign: 'center' },
   details: { width: '100%', gap: spacing.md, backgroundColor: 'rgba(27,36,64,0.75)', borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.cardBorder },
   transition: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
-  prev: { color: colors.textDim, fontWeight: '700', textDecorationLine: 'line-through' },
-  now: { fontWeight: '800' },
+  prev: { ...typography.bodyStrong, color: colors.textDim, textDecorationLine: 'line-through' },
+  now: { ...typography.bodyStrong },
   stats: { flexDirection: 'row', alignItems: 'center' },
   divider: { width: 1, height: 28, backgroundColor: colors.cardBorder },
-  statValue: { color: colors.text, fontSize: 20, fontWeight: '900' },
-  statLabel: { color: colors.textDim, fontSize: 11 },
+  statValue: { ...typography.numberMd },
+  statLabel: { ...typography.caption, fontSize: 11, lineHeight: 14 },
   footer: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.xs, zIndex: 2 },
 });

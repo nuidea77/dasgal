@@ -25,11 +25,16 @@ export function Heading({ children, style }: PropsWithChildren<{ style?: StylePr
 export function Subheading({ children, style }: PropsWithChildren<{ style?: StyleProp<TextStyle> }>) {
   return <Text style={[typography.h3, style]}>{children}</Text>;
 }
-export function Body({ children, style, muted }: PropsWithChildren<{ style?: StyleProp<TextStyle>; muted?: boolean }>) {
-  return <Text style={[muted ? typography.bodyMuted : typography.body, style]}>{children}</Text>;
+export function Body({ children, style, muted, strong, numberOfLines }: PropsWithChildren<{ style?: StyleProp<TextStyle>; muted?: boolean; strong?: boolean; numberOfLines?: number }>) {
+  const base = strong ? typography.bodyStrong : muted ? typography.bodyMuted : typography.body;
+  return <Text style={[base, style]} numberOfLines={numberOfLines}>{children}</Text>;
 }
 export function Caption({ children, style }: PropsWithChildren<{ style?: StyleProp<TextStyle> }>) {
   return <Text style={[typography.caption, style]}>{children}</Text>;
+}
+/** Small all-caps label that sits above a section or a hero title. */
+export function Overline({ children, style }: PropsWithChildren<{ style?: StyleProp<TextStyle> }>) {
+  return <Text style={[typography.overline, style]}>{children}</Text>;
 }
 
 interface ButtonProps {
@@ -103,14 +108,14 @@ const styles = StyleSheet.create({
   buttonSecondary: { backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.cardBorder },
   buttonGhost: { backgroundColor: 'transparent' },
   buttonDanger: { backgroundColor: colors.danger },
-  buttonText: { color: colors.white, fontSize: 16, fontWeight: '700' },
+  buttonText: { ...typography.button },
   chip: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: radius.pill, backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.cardBorder },
   chipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.textMuted, fontWeight: '600' },
+  chipText: { ...typography.bodyStrong, color: colors.textMuted },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
   stat: { flex: 1, alignItems: 'center', gap: 2 },
-  statValue: { fontSize: 22, fontWeight: '800', color: colors.text },
-  statLabel: { fontSize: 12, color: colors.textDim, textAlign: 'center' },
+  statValue: { ...typography.numberMd, fontSize: 22, lineHeight: 26 },
+  statLabel: { ...typography.caption, fontSize: 12, lineHeight: 15, textAlign: 'center' },
   progressTrack: { height: 10, borderRadius: radius.pill, backgroundColor: colors.bgElevated, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: radius.pill },
 });

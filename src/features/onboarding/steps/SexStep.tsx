@@ -4,7 +4,7 @@ import { OnboardingScreenProps } from '@/app/navigation/types';
 import { Icon, IconName } from '@/components/Icon';
 import { Sex } from '@/domain/profile/types';
 import { useT } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { colors, fonts, spacing, typography } from '@/theme';
 import { OnboardingStep } from '../OnboardingStep';
 import { TOTAL_STEPS } from '../steps';
 import { useOnboardingDraft } from '../draft';
@@ -47,5 +47,5 @@ const styles = StyleSheet.create({
   wrap: { alignItems: 'center', gap: spacing.xl },
   item: { alignItems: 'center', gap: spacing.sm },
   circle: { width: 132, height: 132, borderRadius: 66, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
-  label: { color: colors.textMuted, fontSize: 17, fontWeight: '700' },
+  label: { ...typography.h3, color: colors.textMuted, fontFamily: fonts.bold },
 });

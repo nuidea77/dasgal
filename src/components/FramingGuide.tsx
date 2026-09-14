@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { FramingStatus } from '@/domain/pose/framing';
 import { useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 
 interface Props {
   width: number;
@@ -56,5 +56,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     maxWidth: '85%',
   },
-  bannerText: { fontWeight: '700', fontSize: 15, textAlign: 'center' },
+  bannerText: { ...typography.bodyStrong, fontFamily: fonts.bold, textAlign: 'center' },
 });

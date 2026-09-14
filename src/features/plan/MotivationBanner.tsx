@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Icon, IconName } from '@/components/Icon';
 import { MotivationContext, MotivationTone, pickMotivation } from '@/domain/gamification/motivation';
 import { format, useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 
 const TONE_ICON: Record<MotivationTone, IconName> = {
   streak: 'flame',
@@ -46,5 +46,5 @@ export function MotivationBanner({ context, date }: { context: MotivationContext
 const styles = StyleSheet.create({
   wrap: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.sm, paddingRight: spacing.md, backgroundColor: colors.bgElevated, borderRadius: radius.md, borderLeftWidth: 3 },
   iconBox: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  text: { flex: 1, color: colors.text, fontSize: 14, fontWeight: '600', lineHeight: 19 },
+  text: { ...typography.bodyStrong, flex: 1, fontSize: 14.5, lineHeight: 20, fontFamily: fonts.semibold },
 });

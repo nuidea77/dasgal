@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useT } from '@/i18n';
 import { useUserStore } from '@/store/useUserStore';
-import { colors } from '@/theme';
+import { colors, fonts } from '@/theme';
 import { WelcomeScreen } from '@/features/onboarding/WelcomeScreen';
 import { SexStep } from '@/features/onboarding/steps/SexStep';
 import { AgeStep } from '@/features/onboarding/steps/AgeStep';
@@ -31,6 +31,7 @@ import { TitleUnlockScreen } from '@/features/gamification/TitleUnlockScreen';
 import { AwardScreen } from '@/features/gamification/AwardScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { MainTabParamList, OnboardingStackParamList, RootStackParamList } from './types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Onboarding = createNativeStackNavigator<OnboardingStackParamList>();
 const Root = createNativeStackNavigator<RootStackParamList>();
@@ -43,13 +44,22 @@ const theme = {
 
 function MainTabs() {
   const t = useT();
+  const insets = useSafeAreaInsets();
   return (
     <Tabs.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: { backgroundColor: colors.bgElevated, borderTopColor: colors.cardBorder },
+        // The default 48pt bar leaves no room under an 11pt Inter label, and
+        // Cyrillic Д/Ц/р descend far enough to be clipped by the screen edge.
+        tabBarStyle: {
+          backgroundColor: colors.bgElevated,
+          borderTopColor: colors.cardBorder,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
+        },
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textDim,
+        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11, lineHeight: 15, marginBottom: 6 },
       }}
     >
       <Tabs.Screen name="Plan" component={PlanScreen} options={{ title: t.tabs.plan, tabBarIcon: ({ color }) => <Icon name="calendar" color={color} /> }} />
@@ -66,7 +76,14 @@ export function RootNavigator() {
   return (
     <NavigationContainer theme={theme}>
       {onboarded ? (
-        <Root.Navigator screenOptions={{ headerStyle: { backgroundColor: colors.bg }, headerTintColor: colors.text, headerShadowVisible: false }}>
+        <Root.Navigator
+          screenOptions={{
+            headerStyle: { backgroundColor: colors.bg },
+            headerTintColor: colors.text,
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: fonts.semibold, fontSize: 17 },
+          }}
+        >
           <Root.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
           <Root.Screen name="DayDetail" component={DayDetailScreen} options={{ title: '' }} />
           <Root.Screen name="ExerciseDetail" component={ExerciseDetailScreen} options={{ title: '' }} />

@@ -9,7 +9,7 @@ import { Icon } from '@/components/Icon';
 import { LOCKED_STYLE, formatAwardDate, styleFor } from '@/domain/gamification/awards';
 import { useI18nStore, useT } from '@/i18n';
 import { useProgressStore } from '@/store/useProgressStore';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const MEDAL = Math.min(240, SCREEN_W * 0.62);
@@ -209,19 +209,19 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#05070F' },
   stage: { flex: 1, justifyContent: 'center' },
   header: { alignItems: 'center', paddingHorizontal: spacing.lg, gap: 2 },
-  kicker: { color: colors.textDim, fontSize: 12, fontWeight: '800', letterSpacing: 3 },
-  name: { color: colors.text, fontSize: 30, fontWeight: '900', textAlign: 'center', letterSpacing: -0.5, marginTop: spacing.xs },
-  date: { color: colors.textMuted, fontSize: 15, marginTop: 2 },
+  kicker: { ...typography.overline },
+  name: { ...typography.display, textAlign: 'center', marginTop: spacing.xs },
+  date: { ...typography.bodyMuted, marginTop: spacing.xs },
   pager: { flexGrow: 0, marginTop: spacing.xl },
   page: { width: SCREEN_W, alignItems: 'center' },
   body: { paddingHorizontal: spacing.xl, alignItems: 'center', gap: spacing.md, marginTop: spacing.lg },
-  congrats: { color: colors.textMuted, fontSize: 16, lineHeight: 23, textAlign: 'center' },
-  congratsStrong: { fontWeight: '800' },
+  congrats: { ...typography.body, color: colors.textMuted, fontSize: 16, lineHeight: 24, textAlign: 'center' },
+  congratsStrong: { fontFamily: fonts.bold, letterSpacing: -0.2 },
   dots: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.textDim, opacity: 0.6 },
   footer: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.sm },
   doneBtn: { backgroundColor: colors.text, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' },
-  doneText: { color: '#05070F', fontSize: 17, fontWeight: '800' },
+  doneText: { ...typography.button, color: '#05070F', fontSize: 17 },
   shareBtn: { flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
-  shareText: { color: colors.textMuted, fontSize: 15, fontWeight: '700' },
+  shareText: { ...typography.bodyStrong, color: colors.textMuted },
 });

@@ -11,7 +11,7 @@ import { estimateCalories } from '@/domain/plan/generator';
 import { format } from '@/i18n';
 import { useUserStore } from '@/store/useUserStore';
 import { useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, radius, spacing, typography } from '@/theme';
 
 export function ExerciseDetailScreen({ route, navigation }: RootScreenProps<'ExerciseDetail'>) {
   const t = useT();
@@ -80,5 +80,5 @@ export function ExerciseDetailScreen({ route, navigation }: RootScreenProps<'Exe
 const styles = StyleSheet.create({
   gif: { width: '100%', aspectRatio: 4 / 3, borderRadius: radius.lg, backgroundColor: colors.bgElevated },
   step: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
-  stepNum: { color: colors.accent, fontWeight: '800', width: 20 },
+  stepNum: { ...typography.numberSm, color: colors.accent, width: 20 },
 });

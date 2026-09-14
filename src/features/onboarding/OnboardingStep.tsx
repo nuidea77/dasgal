@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Body } from '@/components/ui';
 import { useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, radius, spacing, typography } from '@/theme';
 
 interface Props {
   title: string;
@@ -53,8 +53,8 @@ export function OnboardingStep({ title, subtitle, step, total, onBack, onNext, n
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg, paddingHorizontal: spacing.lg },
   head: { alignItems: 'center', gap: spacing.xs, paddingTop: spacing.xl },
-  title: { color: colors.text, fontSize: 26, fontWeight: '800', textAlign: 'center' },
-  subtitle: { textAlign: 'center', fontSize: 14, lineHeight: 19, paddingHorizontal: spacing.md },
+  title: { ...typography.h1, fontSize: 26, lineHeight: 32, textAlign: 'center' },
+  subtitle: { ...typography.bodyMuted, fontSize: 14.5, lineHeight: 21, textAlign: 'center', paddingHorizontal: spacing.md },
   body: { flex: 1, justifyContent: 'center', gap: spacing.md },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, paddingBottom: spacing.md },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.cardBorder },
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', gap: spacing.sm, paddingBottom: spacing.md },
   btn: { flex: 1, paddingVertical: 16, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   btnBack: { backgroundColor: colors.card, maxWidth: '38%' },
-  btnBackText: { color: colors.textMuted, fontSize: 16, fontWeight: '700' },
+  btnBackText: { ...typography.button, color: colors.textMuted },
   btnNext: { backgroundColor: colors.primary },
-  btnNextText: { color: colors.white, fontSize: 16, fontWeight: '700' },
+  btnNextText: { ...typography.button },
 });

@@ -6,7 +6,7 @@ import { Icon } from '@/components/Icon';
 import { ExerciseThumb } from '@/components/ExerciseImage';
 import { exercisesByMuscle, MUSCLE_GROUPS } from '@/domain/plan/exercises';
 import { format, useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 import { useOnboardingDraft } from './draft';
 
 export const MIN_PICK = 6;
@@ -29,7 +29,7 @@ export function ExercisePickScreen({ navigation }: OnboardingScreenProps<'Exerci
       <Title>{t.onboarding.pickTitle}</Title>
       <Caption>{t.onboarding.pickSubtitle}</Caption>
       <Row style={{ justifyContent: 'space-between' }}>
-        <Body style={{ color: enough ? colors.accent : colors.warning, fontWeight: '700' }}>
+        <Body strong style={{ color: enough ? colors.accent : colors.warning }}>
           {enough ? format(t.onboarding.pickSelected, { n: selected.size }) : format(t.onboarding.pickMin, { n: MIN_PICK })}
         </Body>
         <Row>
@@ -64,11 +64,11 @@ export function ExercisePickScreen({ navigation }: OnboardingScreenProps<'Exerci
 }
 
 const styles = StyleSheet.create({
-  link: { color: colors.primary, fontWeight: '700' },
+  link: { ...typography.bodyStrong, color: colors.primary, fontFamily: fonts.bold },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   cell: { width: '30.5%', flexGrow: 1, backgroundColor: colors.card, borderRadius: radius.md, padding: 6, gap: 4, borderWidth: 2, borderColor: colors.cardBorder, alignItems: 'center' },
   cellOn: { borderColor: colors.accent, backgroundColor: '#163D33' },
-  cellName: { color: colors.text, fontSize: 12, fontWeight: '600', textAlign: 'center', minHeight: 32 },
+  cellName: { ...typography.caption, color: colors.text, fontFamily: fonts.semibold, fontSize: 12, lineHeight: 15, textAlign: 'center', minHeight: 32 },
   check: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.cardBorder, alignItems: 'center', justifyContent: 'center' },
   checkOn: { backgroundColor: colors.accent, borderColor: colors.accent },
 });

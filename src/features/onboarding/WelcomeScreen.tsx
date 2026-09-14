@@ -7,7 +7,7 @@ import { StickFigureDemo } from '@/components/StickFigureDemo';
 import { Icon, IconName } from '@/components/Icon';
 import { getExercise } from '@/domain/plan/exercises';
 import { useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 
 const BULLETS: Array<{ key: 'welcomeBullet1' | 'welcomeBullet2' | 'welcomeBullet3'; icon: IconName }> = [
   { key: 'welcomeBullet1', icon: 'cpu' },
@@ -40,7 +40,7 @@ export function WelcomeScreen({ navigation }: OnboardingScreenProps<'Welcome'>) 
               <View style={styles.bulletIcon}>
                 <Icon name={b.icon} size={18} color={colors.accent} />
               </View>
-              <Body style={{ flex: 1, fontSize: 15 }}>{t.onboarding[b.key]}</Body>
+              <Body style={{ flex: 1 }}>{t.onboarding[b.key]}</Body>
             </View>
           ))}
         </Animated.View>
@@ -57,8 +57,8 @@ export function WelcomeScreen({ navigation }: OnboardingScreenProps<'Welcome'>) 
 
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: spacing.xs, marginTop: spacing.lg },
-  title: { fontSize: 46, color: colors.primary, letterSpacing: -1 },
-  tagline: { color: colors.accent, fontSize: 17, fontWeight: '800', marginBottom: 2 },
+  title: { ...typography.display, fontSize: 48, lineHeight: 54, letterSpacing: -1.2, color: colors.primary },
+  tagline: { ...typography.h3, color: colors.accent, fontFamily: fonts.bold, marginBottom: 2, textAlign: 'center' },
   bullet: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.card, padding: spacing.sm, borderRadius: radius.md, borderWidth: 1, borderColor: colors.cardBorder },
   bulletIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
   privacy: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center', paddingHorizontal: spacing.sm },

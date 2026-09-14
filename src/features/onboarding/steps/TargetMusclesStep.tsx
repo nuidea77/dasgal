@@ -6,7 +6,7 @@ import { Icon } from '@/components/Icon';
 import { BodySide, groupsOnSide } from '@/domain/plan/bodyRegions';
 import { exercisesByMuscle, MuscleGroup } from '@/domain/plan/exercises';
 import { useT } from '@/i18n';
-import { colors, radius, spacing } from '@/theme';
+import { colors, fonts, radius, spacing, typography } from '@/theme';
 import { OnboardingStep } from '../OnboardingStep';
 import { TOTAL_STEPS } from '../steps';
 import { useOnboardingDraft } from '../draft';
@@ -67,14 +67,14 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', alignSelf: 'center', backgroundColor: colors.card, borderRadius: radius.pill, padding: 4, gap: 4 },
   tab: { paddingVertical: 8, paddingHorizontal: 20, borderRadius: radius.pill },
   tabOn: { backgroundColor: colors.accent },
-  tabText: { color: colors.textMuted, fontWeight: '700', fontSize: 13 },
+  tabText: { ...typography.caption, color: colors.textMuted, fontFamily: fonts.bold },
   tabTextOn: { color: colors.bg },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, maxHeight: 420 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 11, paddingHorizontal: 12, borderRadius: radius.pill, borderWidth: 1.5, borderColor: colors.cardBorder, backgroundColor: colors.card },
   chipOn: { borderColor: colors.accent, backgroundColor: '#163D33' },
-  chipText: { color: colors.textMuted, fontWeight: '700', fontSize: 14 },
+  chipText: { ...typography.bodyStrong, color: colors.textMuted, fontFamily: fonts.bold, fontSize: 14 },
   chipTextOn: { color: colors.text },
   check: { width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: colors.textDim, alignItems: 'center', justifyContent: 'center' },
   checkOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  count: { color: colors.textDim, fontSize: 12, textAlign: 'center' },
+  count: { ...typography.caption, fontSize: 12, lineHeight: 16, textAlign: 'center' },
 });

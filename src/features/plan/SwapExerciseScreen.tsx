@@ -7,7 +7,7 @@ import { ExerciseThumb } from '@/components/ExerciseImage';
 import { EXERCISES, getExercise } from '@/domain/plan/exercises';
 import { useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
-import { colors } from '@/theme';
+import { colors, typography } from '@/theme';
 
 export function SwapExerciseScreen({ route, navigation }: RootScreenProps<'SwapExercise'>) {
   const t = useT();
@@ -42,7 +42,7 @@ export function SwapExerciseScreen({ route, navigation }: RootScreenProps<'SwapE
               <Row style={{ flexWrap: 'nowrap' }}>
                 <ExerciseThumb exerciseId={id} size={64} />
                 <View style={{ flex: 1, gap: 4 }}>
-                  <Body style={{ fontWeight: '700' }}>{t.exercises[id as keyof typeof t.exercises]?.name ?? id}</Body>
+                  <Body strong>{t.exercises[id as keyof typeof t.exercises]?.name ?? id}</Body>
                   <Row>
                     <Text style={styles.meta}>{cand.muscles.map((m) => t.muscles[m]).join(' · ')}</Text>
                     <Difficulty level={cand.difficulty} />
@@ -68,4 +68,4 @@ function Difficulty({ level }: { level: number }) {
   );
 }
 
-const styles = StyleSheet.create({ meta: { color: colors.textDim, fontSize: 13 } });
+const styles = StyleSheet.create({ meta: { ...typography.caption } });
