@@ -39,7 +39,7 @@ export function LibraryScreen() {
                 const kcal = Math.round(ex.kcalPerUnit * (weightKg / 70) * 100) / 100;
                 return (
                   <Pressable key={ex.id} onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: ex.id })} style={styles.card}>
-                    <ExerciseThumb exerciseId={ex.id} size={140} />
+                    <ExerciseThumb exerciseId={ex.id} />
                     <Text style={styles.name} numberOfLines={2}>{t.exercises[ex.id as keyof typeof t.exercises]?.name ?? ex.id}</Text>
                     <View style={styles.meta}>
                       <Icon name={ex.countingMode === 'timed' ? 'timer' : 'cpu'} size={13} color={colors.textDim} />
@@ -63,6 +63,9 @@ export function LibraryScreen() {
   );
 }
 
+/** Card width; the photo inside stretches to whatever the padding leaves. */
+const CARD_WIDTH = 150;
+
 const styles = StyleSheet.create({
   // The section must not grow to the width of the rail's content, or the
   // header's count is pushed off the right edge of the screen.
@@ -70,7 +73,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   rail: { marginHorizontal: -spacing.md },
   railContent: { gap: spacing.sm, paddingHorizontal: spacing.md },
-  card: { width: 140, gap: 4, backgroundColor: colors.card, borderRadius: radius.md, padding: 6, borderWidth: 1, borderColor: colors.cardBorder },
+  card: { width: CARD_WIDTH, gap: 4, backgroundColor: colors.card, borderRadius: radius.md, padding: 6, borderWidth: 1, borderColor: colors.cardBorder },
   name: { ...typography.bodyStrong, fontSize: 14, lineHeight: 18, minHeight: 36 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   metaText: { ...typography.caption, fontSize: 11, lineHeight: 14 },

@@ -49,7 +49,7 @@ export function ExercisePickScreen({ navigation }: OnboardingScreenProps<'Exerci
               const on = selected.has(ex.id);
               return (
                 <Pressable key={`${group}-${ex.id}`} onPress={() => toggleExercise(ex.id)} style={[styles.cell, on && styles.cellOn]}>
-                  <ExerciseThumb exerciseId={ex.id} size={64} />
+                  <ExerciseThumb exerciseId={ex.id} />
                   <Text style={styles.cellName} numberOfLines={2}>{t.exercises[ex.id as keyof typeof t.exercises]?.name ?? ex.id}</Text>
                   <View style={[styles.check, on && styles.checkOn]}>{on ? <Icon name="check" size={14} color={colors.bg} strokeWidth={3} /> : null}</View>
                 </Pressable>

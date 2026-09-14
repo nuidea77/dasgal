@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, StyleSheet, View } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Image, ImageStyle } from 'expo-image';
 import { colors, radius } from '@/theme';
 import { EXERCISE_GIFS, EXERCISE_PHOTOS } from './exerciseAssets';
@@ -19,11 +19,19 @@ export function ExerciseImage({ exerciseId, style, preferGif = true }: { exercis
   return <Image source={src} style={[styles.image, style]} contentFit="cover" transition={200} autoplay />;
 }
 
-/** Small rounded thumbnail for list rows (still photo). */
-export function ExerciseThumb({ exerciseId, size = 56 }: { exerciseId: string; size?: number }) {
+/**
+ * Rounded thumbnail (still photo). With `size` it is a fixed square for list
+ * rows; without one it fills the parent's content width, so it can never spill
+ * out of a card's padding.
+ */
+export function ExerciseThumb({ exerciseId, size, style }: { exerciseId: string; size?: number; style?: StyleProp<ViewStyle> }) {
   const src = EXERCISE_PHOTOS[exerciseId];
+  const box: ViewStyle =
+    size === undefined
+      ? { width: '100%', aspectRatio: 1, borderRadius: radius.md }
+      : { width: size, height: size, borderRadius: size / 4 };
   return (
-    <View style={[styles.thumb, { width: size, height: size, borderRadius: size / 4 }]}>
+    <View style={[styles.thumb, box, style]}>
       {src ? <Image source={src} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
     </View>
   );
