@@ -76,6 +76,10 @@ export const useProgressStore = create<ProgressState>()(
           quality: record.avgQuality,
           streakDays,
         });
+        if (xpGained === 0) {
+          // Nothing was done: do not record a workout, do not grant badges.
+          return { xpGained: 0, newBadges: [], leveledUp: false, level: levelForXp(s.xp), streakDays: s.streakDays };
+        }
         const prevLevel = levelForXp(s.xp);
         const xp = s.xp + xpGained;
         const level = levelForXp(xp);
@@ -87,7 +91,7 @@ export const useProgressStore = create<ProgressState>()(
           totalReps: s.totalReps + record.totalReps,
           repsByExercise,
           hardWorkouts: s.hardWorkouts + (record.intensity === 'hard' ? 1 : 0),
-          perfectWorkouts: s.perfectWorkouts + (record.avgQuality >= 0.9 ? 1 : 0),
+          perfectWorkouts: s.perfectWorkouts + (record.avgQuality >= 0.9 && record.totalReps >= 10 ? 1 : 0),
           programsCompleted: s.programsCompleted + (programFinished ? 1 : 0),
           level,
         };

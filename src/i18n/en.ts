@@ -63,7 +63,7 @@ export const en: Translations = {
   },
   complete: {
     title: 'Congratulations!', subtitle: "You finished today's workout.", reps: 'Total reps', time: 'Time', calories: 'Calories',
-    quality: 'Form quality', xp: 'XP earned', newBadge: 'New badge!', levelUp: 'Level up!', continue: 'Continue',
+    quality: 'Form quality', xp: 'XP earned', xpProgress: 'XP progress', newBadge: 'New badge!', levelUp: 'Level up!', continue: 'Continue',
   },
   progress: {
     title: 'My progress', level: 'Level', xpToNext: 'to next level', streak: 'Day streak', workouts: 'Workouts', totalReps: 'Total reps',
@@ -84,6 +84,13 @@ export const en: Translations = {
     level_5: { name: 'Level 5', description: 'Reached level 5' },
     level_10: { name: 'Level 10', description: 'Reached level 10' },
   },
+  titles: {
+    first_step: 'First Step', awakened: 'Awakened', go_getter: 'Go-getter', steady: 'Steady', strong_one: 'Strong One', fire_heart: 'Fire Heart',
+    iron_will: 'Iron Will', wind_speed: 'Wind Speed', steel_muscle: 'Steel Muscle', workout_master: 'Workout Master', barrier_breaker: 'Barrier Breaker',
+    relentless: 'Relentless', champion: 'Champion', mountain_wolf: 'Mountain Wolf', legend: 'Legend', storm: 'Storm', titan: 'Titan',
+    eternal_form: 'Eternal Form', grandmaster: 'Grandmaster', mythic_hero: 'Mythic Hero',
+  },
+  rank: { yourTitle: 'Your title', nextTitle: 'Next title: {title} · {xp} XP to go', unlockedTitle: 'Congratulations!', unlockedBody: 'You are now', unlockedTail: '', keepGoing: 'Keep going!' },
   settings: {
     title: 'Settings', reminder: 'Daily reminder', reminderTime: 'Reminder time', motivation: 'Motivational notifications', voice: 'Voice coach',
     language: 'Language', camera: 'Camera', cameraFront: 'Front', cameraBack: 'Back', showSkeleton: 'Show skeleton overlay',

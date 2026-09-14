@@ -30,6 +30,8 @@ export interface WorkoutXpInput {
 }
 
 export function xpForWorkout(input: WorkoutXpInput): number {
+  // No work done (e.g. finished immediately) → no XP.
+  if (input.reps <= 0 && input.holdSeconds <= 0 && input.minutes < 3) return 0;
   const base = 50;
   const volume = input.reps * 1 + input.holdSeconds * 0.5 + input.minutes * 2;
   const intensityBonus = { easy: 0, moderate: 15, hard: 40 }[input.intensity];

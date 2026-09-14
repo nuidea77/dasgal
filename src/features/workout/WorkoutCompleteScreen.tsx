@@ -6,12 +6,18 @@ import { Body, Button, Card, Row, Screen, Stat, Title } from '@/components/ui';
 import { Confetti } from '@/components/Confetti';
 import { Icon } from '@/components/Icon';
 import { BADGES } from '@/domain/gamification/badges';
+import { titleForLevel } from '@/domain/gamification/titles';
+import { XpBar } from '@/components/XpBar';
+import { titleName } from '@/features/gamification/titleName';
+import { useProgressStore } from '@/store/useProgressStore';
 import { useT } from '@/i18n';
 import { colors, spacing } from '@/theme';
 
 export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'WorkoutComplete'>) {
   const t = useT();
   const { record, outcome } = route.params;
+  const xp = useProgressStore((s) => s.xp);
+  const fromXp = Math.max(0, xp - outcome.xpGained);
 
   useEffect(() => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -42,17 +48,13 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
             <Stat label={t.progress.streak} value={`${outcome.streakDays}`} />
           </Row>
         </Card>
-        {outcome.leveledUp ? (
-          <Card style={{ borderColor: colors.accent }}>
-            <Row>
-              <Icon name="arrowUp" color={colors.accent} />
-              <Text style={styles.levelUp}>{t.complete.levelUp}</Text>
-            </Row>
-            <Body>
-              {t.progress.level} {outcome.level}
-            </Body>
-          </Card>
-        ) : null}
+        <Card>
+          <Row style={{ justifyContent: 'space-between' }}>
+            <Body muted>{t.complete.xpProgress}</Body>
+            <Text style={styles.gain}>+{outcome.xpGained} XP</Text>
+          </Row>
+          <XpBar fromXp={fromXp} toXp={xp} levelLabel={(level) => titleName(t, titleForLevel(level))} />
+        </Card>
         {outcome.newBadges.length > 0 ? (
           <Card style={{ borderColor: colors.warning }}>
             <Text style={styles.levelUp}>{t.complete.newBadge}</Text>
@@ -72,7 +74,7 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
           </Card>
         ) : null}
         <View style={{ flex: 1 }} />
-        <Button title={t.complete.continue} size="lg" onPress={() => navigation.popToTop()} />
+        <Button title={t.complete.continue} size="lg" onPress={() => (outcome.leveledUp ? navigation.replace('TitleUnlock', { level: outcome.level }) : navigation.popToTop())} />
       </Screen>
       <Confetti />
     </View>
@@ -83,4 +85,5 @@ const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.lg },
   heroIcon: { width: 88, height: 88, borderRadius: 44, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.cardBorder },
   levelUp: { color: colors.accent, fontWeight: '800', fontSize: 18 },
+  gain: { color: colors.accent, fontWeight: '900', fontSize: 20 },
 });

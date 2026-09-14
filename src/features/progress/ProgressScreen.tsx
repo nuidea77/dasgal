@@ -4,6 +4,9 @@ import { Body, Caption, Card, ProgressBar, Row, Screen, Stat, Subheading, Title 
 import { Icon } from '@/components/Icon';
 import { BADGES } from '@/domain/gamification/badges';
 import { levelProgress } from '@/domain/gamification/levels';
+import { nextTitle, titleForLevel } from '@/domain/gamification/titles';
+import { titleName } from '@/features/gamification/titleName';
+import { format } from '@/i18n';
 import { useT } from '@/i18n';
 import { useProgressStore } from '@/store/useProgressStore';
 import { colors, radius, spacing } from '@/theme';
@@ -19,16 +22,21 @@ export function ProgressScreen() {
   return (
     <Screen>
       <Title>{t.progress.title}</Title>
-      <Card>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Subheading>
-            {t.progress.level} {lp.level}
-          </Subheading>
-          <Caption>
-            {lp.current}/{lp.needed} XP {t.progress.xpToNext}
-          </Caption>
+      <Card style={{ borderColor: colors.accent }}>
+        <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+          <View style={{ flex: 1 }}>
+            <Caption>{t.rank.yourTitle}</Caption>
+            <Text style={styles.rank}>{titleName(t, titleForLevel(lp.level))}</Text>
+          </View>
+          <View style={styles.levelPill}>
+            <Icon name="award" size={16} color={colors.warning} />
+            <Text style={styles.levelText}>{lp.level}</Text>
+          </View>
         </Row>
         <ProgressBar ratio={lp.ratio} color={colors.accent} />
+        <Caption>
+          {lp.current}/{lp.needed} XP · {format(t.rank.nextTitle, { title: titleName(t, nextTitle(p.xp).title), xp: nextTitle(p.xp).xpNeeded })}
+        </Caption>
       </Card>
       <Card>
         <Row>
@@ -71,6 +79,9 @@ export function ProgressScreen() {
 }
 
 const styles = StyleSheet.create({
+  rank: { color: colors.accent, fontSize: 26, fontWeight: '900' },
+  levelPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.bgElevated, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill },
+  levelText: { color: colors.text, fontWeight: '800' },
   badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   badge: { width: '30%', flexGrow: 1, backgroundColor: colors.card, borderRadius: radius.md, padding: spacing.sm, alignItems: 'center', gap: 4, borderWidth: 1, borderColor: colors.cardBorder },
   badgeLocked: { opacity: 0.4 },

@@ -18,6 +18,7 @@ export type RootStackParamList = {
   SwapExercise: { dayIndex: number; exerciseKey: string };
   WorkoutSession: { dayIndex: number };
   WorkoutComplete: { record: WorkoutRecord; outcome: RecordOutcome };
+  TitleUnlock: { level: number };
 };
 
 export type MainTabParamList = {

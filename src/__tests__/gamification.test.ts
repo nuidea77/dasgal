@@ -20,6 +20,7 @@ describe('levels', () => {
     const hard = xpForWorkout({ reps: 50, holdSeconds: 0, minutes: 10, intensity: 'hard', quality: 1, streakDays: 5 });
     expect(hard).toBeGreaterThan(easy);
     expect(easy).toBe(50 + 50 + 20);
+    expect(xpForWorkout({ reps: 0, holdSeconds: 0, minutes: 0.05, intensity: 'hard', quality: 1, streakDays: 3 })).toBe(0);
   });
 });
 
