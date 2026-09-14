@@ -1,0 +1,87 @@
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { RootScreenProps } from '@/app/navigation/types';
+import { Body, Button, Caption, Card, Row, Screen, Title } from '@/components/ui';
+import { getExercise } from '@/domain/plan/exercises';
+import { useT } from '@/i18n';
+import { usePlanStore } from '@/store/usePlanStore';
+import { colors, spacing } from '@/theme';
+
+export function DayDetailScreen({ route, navigation }: RootScreenProps<'DayDetail'>) {
+  const t = useT();
+  const plan = usePlanStore((s) => s.plan);
+  const completed = usePlanStore((s) => s.completedDates);
+  const updateVolume = usePlanStore((s) => s.updateVolume);
+  const day = plan?.days.find((d) => d.dayIndex === route.params.dayIndex);
+  if (!day) return null;
+
+  const adjust = (key: string, sets: number, target: number) => updateVolume(day.dayIndex, key, sets, target);
+
+  return (
+    <Screen>
+      <Title>
+        {t.common.day} {day.dayIndex + 1}
+      </Title>
+      <Caption>
+        {day.date} · {day.kind === 'rest' ? t.plan.restDay : `${t.plan[`focus_${day.focus}` as const]} · ${t.plan[`intensity_${day.intensity}` as const]} · ${day.estimatedMinutes} ${t.common.minutes}`}
+      </Caption>
+      {day.kind === 'rest' ? (
+        <Body muted>{t.plan.restDayHint}</Body>
+      ) : (
+        <>
+          {day.exercises.map((pe) => {
+            const ex = getExercise(pe.exerciseId);
+            const name = t.exercises[pe.exerciseId as keyof typeof t.exercises]?.name ?? pe.exerciseId;
+            const unit = ex.countingMode === 'reps_ai' ? t.common.reps : t.common.seconds;
+            return (
+              <Card key={pe.key}>
+                <Pressable onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: pe.exerciseId, dayIndex: day.dayIndex, exerciseKey: pe.key })}>
+                  <Row style={{ justifyContent: 'space-between' }}>
+                    <Body style={{ fontWeight: '700', flex: 1 }}>{name}</Body>
+                    <Caption>{ex.countingMode === 'timed' ? '⏱' : '🤖 AI'}</Caption>
+                  </Row>
+                </Pressable>
+                <Row style={{ justifyContent: 'space-between' }}>
+                  <Caption>{t.plan.setsReps}</Caption>
+                  <Row>
+                    <Stepper value={pe.sets} onChange={(v) => adjust(pe.key, v, pe.target)} suffix={t.common.sets} />
+                    <Stepper value={pe.target} step={ex.countingMode === 'reps_ai' ? 1 : 5} onChange={(v) => adjust(pe.key, pe.sets, v)} suffix={unit} />
+                  </Row>
+                </Row>
+                <Button title={t.plan.swap} variant="secondary" onPress={() => navigation.navigate('SwapExercise', { dayIndex: day.dayIndex, exerciseKey: pe.key })} />
+              </Card>
+            );
+          })}
+          {completed[day.date] ? (
+            <Body style={{ color: colors.accent, fontWeight: '700', textAlign: 'center' }}>✓ {t.plan.completed}</Body>
+          ) : (
+            <Button title={t.plan.startWorkout} size="lg" onPress={() => navigation.navigate('WorkoutSession', { dayIndex: day.dayIndex })} />
+          )}
+        </>
+      )}
+    </Screen>
+  );
+}
+
+function Stepper({ value, onChange, step = 1, suffix }: { value: number; onChange: (v: number) => void; step?: number; suffix: string }) {
+  return (
+    <View style={styles.stepper}>
+      <Pressable onPress={() => onChange(Math.max(1, value - step))} style={styles.stepBtn} hitSlop={8}>
+        <Text style={styles.stepText}>−</Text>
+      </Pressable>
+      <Text style={styles.stepValue}>
+        {value} {suffix}
+      </Text>
+      <Pressable onPress={() => onChange(value + step)} style={styles.stepBtn} hitSlop={8}>
+        <Text style={styles.stepText}>+</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  stepper: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, backgroundColor: colors.bgElevated, borderRadius: 999, paddingHorizontal: 4 },
+  stepBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  stepText: { color: colors.primary, fontSize: 20, fontWeight: '800' },
+  stepValue: { color: colors.text, fontWeight: '700', minWidth: 60, textAlign: 'center' },
+});

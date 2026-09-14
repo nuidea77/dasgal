@@ -1,0 +1,335 @@
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { Alert, LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Camera } from 'react-native-vision-camera';
+import { useKeepAwake } from 'expo-keep-awake';
+import * as Haptics from 'expo-haptics';
+import { RootScreenProps } from '@/app/navigation/types';
+import { Body, Button } from '@/components/ui';
+import { FramingGuide } from '@/components/FramingGuide';
+import { PoseOverlay } from '@/components/PoseOverlay';
+import { createAnalyzer } from '@/domain/pose/analyzers';
+import { evaluateFraming } from '@/domain/pose/framing';
+import { ExerciseAnalyzer } from '@/domain/pose/repEngine';
+import { mapPoseToView } from '@/domain/pose/viewMapping';
+import { FeedbackKey } from '@/domain/pose/feedback';
+import { estimateCalories, todayIso } from '@/domain/plan/generator';
+import { getExercise } from '@/domain/plan/exercises';
+import { useT } from '@/i18n';
+import { usePoseDetector } from '@/services/pose/usePoseDetector';
+import { voiceCoach } from '@/services/voice/coach';
+import { clearMotivationForToday } from '@/services/notifications/scheduler';
+import { usePlanStore } from '@/store/usePlanStore';
+import { useProgressStore } from '@/store/useProgressStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
+import { useUserStore } from '@/store/useUserStore';
+import { colors, radius, spacing } from '@/theme';
+import { createSession, currentExercise, sessionReducer, summarize } from './sessionReducer';
+
+export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'WorkoutSession'>) {
+  useKeepAwake();
+  const t = useT();
+  const plan = usePlanStore((s) => s.plan);
+  const markCompleted = usePlanStore((s) => s.markCompleted);
+  const recordWorkout = useProgressStore((s) => s.recordWorkout);
+  const profile = useUserStore((s) => s.profile);
+  const settings = useSettingsStore();
+  const day = plan?.days.find((d) => d.dayIndex === route.params.dayIndex);
+
+  const [state, dispatch] = useReducer(sessionReducer, day?.exercises ?? [], createSession);
+  const [viewSize, setViewSize] = useState({ width: 1, height: 1 });
+  const [feedback, setFeedback] = useState<FeedbackKey | null>(null);
+  const startedAt = useRef(new Date());
+  const finishedRef = useRef(false);
+
+  const pe = currentExercise(state);
+  const exercise = pe ? getExercise(pe.exerciseId) : null;
+  const detectorEnabled = state.status === 'positioning' || state.status === 'countdown' || state.status === 'exercising';
+  const detector = usePoseDetector({ cameraPosition: settings.cameraPosition, enabled: detectorEnabled, targetFps: 24 });
+
+  // One analyzer per exercise/set so state (phase, reps) resets cleanly.
+  const analyzerRef = useRef<ExerciseAnalyzer | null>(null);
+  useEffect(() => {
+    analyzerRef.current = exercise?.analyzer ? createAnalyzer(exercise.analyzer) : null;
+  }, [exercise?.analyzer, state.exerciseIndex, state.setIndex]);
+
+  // 1 Hz clock for countdown / rest / timed sets.
+  useEffect(() => {
+    if (state.status === 'complete' || state.status === 'paused') return;
+    const id = setInterval(() => dispatch({ type: 'TICK' }), 1000);
+    return () => clearInterval(id);
+  }, [state.status]);
+
+  // Framing check + pose analysis on every new pose.
+  const framing = useMemo(
+    () => evaluateFraming(detector.pose, { required: exercise?.requiredJoints ?? [] }),
+    [detector.pose, exercise?.requiredJoints],
+  );
+  useEffect(() => {
+    if (state.status === 'positioning' && framing.status === 'ok') dispatch({ type: 'FRAMING_OK' });
+  }, [framing.status, state.status]);
+
+  useEffect(() => {
+    if (state.status !== 'exercising' || !detector.pose || !analyzerRef.current) return;
+    const result = analyzerRef.current.process(framing.status === 'no_person' ? null : detector.pose);
+    dispatch({ type: 'ANALYSIS', result });
+    const correction = result.feedback.find((f) => f !== 'good_rep' && f !== 'perfect');
+    setFeedback(correction ?? null);
+    if (correction) voiceCoach.feedback(correction);
+  }, [detector.pose, state.status, framing.status]);
+
+  // Voice / haptics reactions to state changes.
+  const lastCountdown = useRef<number | null>(null);
+  useEffect(() => {
+    if (state.status === 'countdown' && state.countdown !== lastCountdown.current) {
+      lastCountdown.current = state.countdown;
+      if (state.countdown === 3 || state.countdown === 2 || state.countdown === 1) voiceCoach.countdown(state.countdown);
+    }
+    if (state.status === 'exercising' && lastCountdown.current !== 0) {
+      lastCountdown.current = 0;
+      voiceCoach.go();
+    }
+  }, [state.status, state.countdown]);
+
+  useEffect(() => {
+    if (state.event === 'rep') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      voiceCoach.countRep(state.currentReps);
+      if (pe && state.currentReps === Math.ceil(pe.target / 2) && pe.target >= 8) {
+        // "halfway" is nice-to-have; keep counting numbers dominant.
+      }
+    } else if (state.event === 'set_done' || state.event === 'exercise_done') {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      voiceCoach.setDone();
+      setTimeout(() => voiceCoach.restStart(state.restLeft), 1500);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.event, state.currentReps]);
+
+  useEffect(() => {
+    if (state.status === 'rest' && state.restLeft === 3) voiceCoach.restEnd();
+  }, [state.status, state.restLeft]);
+
+  // Persist the result and go to the celebration screen.
+  useEffect(() => {
+    if (state.status !== 'complete' || finishedRef.current || !day || !profile) return;
+    finishedRef.current = true;
+    voiceCoach.workoutDone();
+    const { totalReps, totalHoldSeconds, avgQuality } = summarize(state);
+    const records = state.records.filter(Boolean);
+    const calories = estimateCalories(
+      records.map((r) => ({ exerciseId: r.exerciseId, count: getExercise(r.exerciseId).countingMode === 'reps_ai' ? r.reps : r.holdSeconds })),
+      profile.weightKg,
+    );
+    const endedAt = new Date();
+    const record = {
+      id: `${day.date}-${endedAt.getTime()}`,
+      date: todayIso(endedAt),
+      dayIndex: day.dayIndex,
+      startedAt: startedAt.current.toISOString(),
+      endedAt: endedAt.toISOString(),
+      durationSec: Math.round((endedAt.getTime() - startedAt.current.getTime()) / 1000),
+      exercises: records,
+      totalReps,
+      totalHoldSeconds,
+      calories,
+      avgQuality,
+      intensity: day.intensity,
+    };
+    const scheduled = plan?.days.filter((d) => d.kind === 'workout').map((d) => d.date) ?? [];
+    const completedCount = Object.keys(usePlanStore.getState().completedDates).length + 1;
+    const programFinished = completedCount >= scheduled.length;
+    const outcome = recordWorkout(record, scheduled, programFinished);
+    markCompleted(day.date, record.id);
+    void clearMotivationForToday(record.date);
+    navigation.replace('WorkoutComplete', { record: { ...record, xp: outcome.xpGained }, outcome });
+  }, [state, day, profile, plan, recordWorkout, markCompleted, navigation]);
+
+  useEffect(() => () => voiceCoach.stop(), []);
+
+  const onLayout = useCallback((e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    setViewSize({ width, height });
+  }, []);
+
+  const viewPose = useMemo(
+    () =>
+      detector.pose
+        ? mapPoseToView(detector.pose, {
+            viewWidth: viewSize.width,
+            viewHeight: viewSize.height,
+            imageWidth: detector.imageSize.width,
+            imageHeight: detector.imageSize.height,
+            mirror: settings.cameraPosition === 'front',
+            resizeMode: 'cover',
+          })
+        : null,
+    [detector.pose, viewSize, detector.imageSize, settings.cameraPosition],
+  );
+
+  const quit = () => {
+    Alert.alert(t.workout.finish, t.workout.quitConfirm, [
+      { text: t.common.cancel, style: 'cancel' },
+      { text: t.workout.finish, style: 'destructive', onPress: () => navigation.goBack() },
+    ]);
+  };
+
+  if (!day || !pe || !exercise) return null;
+  const name = t.exercises[pe.exerciseId as keyof typeof t.exercises]?.name ?? pe.exerciseId;
+  const cameraActive = detectorEnabled && detector.hasPermission && detector.device != null;
+
+  return (
+    <View style={styles.root}>
+      <View style={styles.cameraBox} onLayout={onLayout}>
+        {detector.device && detector.hasPermission ? (
+          <Camera
+            style={StyleSheet.absoluteFill}
+            device={detector.device}
+            format={detector.format}
+            isActive={cameraActive}
+            frameProcessor={detector.frameProcessor}
+            pixelFormat="yuv"
+            resizeMode="cover"
+            enableZoomGesture={false}
+          />
+        ) : (
+          <View style={[StyleSheet.absoluteFill, styles.center]}>
+            <Body muted>{detector.hasPermission ? t.common.loading : t.workout.cameraDenied}</Body>
+            {!detector.hasPermission ? <Button title={t.common.next} onPress={() => void detector.requestPermission()} /> : null}
+          </View>
+        )}
+        {settings.showSkeleton && detectorEnabled ? (
+          <PoseOverlay pose={viewPose} width={viewSize.width} height={viewSize.height} bad={Boolean(feedback)} />
+        ) : null}
+        {state.status === 'positioning' ? <FramingGuide width={viewSize.width} height={viewSize.height} status={framing.status} /> : null}
+
+        {/* Top bar */}
+        <View style={styles.topBar}>
+          <Pressable onPress={quit} hitSlop={12} style={styles.iconBtn}>
+            <Text style={styles.iconText}>✕</Text>
+          </Pressable>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.exerciseName} numberOfLines={1}>{name}</Text>
+            <Text style={styles.setLabel}>
+              {t.workout.set} {state.setIndex + 1}/{pe.sets} · {state.exerciseIndex + 1}/{state.exercises.length}
+            </Text>
+          </View>
+          <Text style={styles.fps}>
+            {detector.fps} {t.workout.fps}
+          </Text>
+        </View>
+
+        {/* Model status */}
+        {detector.modelState !== 'loaded' && detectorEnabled ? (
+          <View style={styles.modelBanner}>
+            <Body muted>{detector.modelState === 'error' ? t.workout.modelError : t.workout.modelLoading}</Body>
+          </View>
+        ) : null}
+
+        {/* Centre overlays */}
+        {state.status === 'countdown' ? (
+          <View style={[StyleSheet.absoluteFill, styles.center]}>
+            <Text style={styles.countdown}>{state.countdown}</Text>
+            <Text style={styles.countdownLabel}>{t.workout.getReady}</Text>
+          </View>
+        ) : null}
+        {state.status === 'rest' ? <RestOverlay seconds={state.restLeft} nextName={nextExerciseName(state, t)} onSkip={() => dispatch({ type: 'SKIP_REST' })} /> : null}
+        {state.status === 'paused' ? (
+          <View style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: colors.overlay }]}>
+            <Text style={styles.countdownLabel}>{t.workout.pause}</Text>
+            <Button title={t.workout.resume} onPress={() => dispatch({ type: 'RESUME' })} />
+          </View>
+        ) : null}
+
+        {/* Feedback */}
+        {state.status === 'exercising' && feedback ? (
+          <View style={styles.feedback}>
+            <Text style={styles.feedbackText}>{t.feedback[feedback]}</Text>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Bottom HUD */}
+      <View style={styles.hud}>
+        <View style={{ flex: 1 }}>
+          {exercise.countingMode === 'reps_ai' ? (
+            <>
+              <Text style={styles.counter}>
+                {state.currentReps}
+                <Text style={styles.counterTarget}>/{pe.target}</Text>
+              </Text>
+              <Text style={styles.counterLabel}>{t.common.reps}</Text>
+            </>
+          ) : exercise.countingMode === 'hold_ai' ? (
+            <>
+              <Text style={styles.counter}>
+                {Math.floor(state.currentHold)}
+                <Text style={styles.counterTarget}>/{pe.target}s</Text>
+              </Text>
+              <Text style={styles.counterLabel}>{t.workout.holdSeconds}</Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.counter}>
+                {Math.max(0, pe.target - state.elapsedInSet)}
+                <Text style={styles.counterTarget}>s</Text>
+              </Text>
+              <Text style={styles.counterLabel}>{t.common.seconds}</Text>
+            </>
+          )}
+        </View>
+        <View style={styles.hudButtons}>
+          {exercise.countingMode === 'reps_ai' && state.status === 'exercising' ? (
+            <Button title={t.workout.manualPlus} variant="secondary" onPress={() => dispatch({ type: 'MANUAL_REP' })} />
+          ) : null}
+          {state.status === 'paused' ? null : <Button title={t.workout.pause} variant="secondary" onPress={() => dispatch({ type: 'PAUSE' })} />}
+          <Button title={t.workout.finish} variant="ghost" onPress={() => dispatch({ type: 'FINISH' })} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function nextExerciseName(state: ReturnType<typeof createSession>, t: ReturnType<typeof useT>): string {
+  const pe = currentExercise(state);
+  if (!pe) return '';
+  const lastSet = state.setIndex >= pe.sets - 1;
+  const next = lastSet ? state.exercises[state.exerciseIndex + 1] : pe;
+  if (!next) return '';
+  return t.exercises[next.exerciseId as keyof typeof t.exercises]?.name ?? next.exerciseId;
+}
+
+function RestOverlay({ seconds, nextName, onSkip }: { seconds: number; nextName: string; onSkip: () => void }) {
+  const t = useT();
+  return (
+    <View style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: colors.overlay }]}>
+      <Text style={styles.countdownLabel}>{t.workout.restTitle}</Text>
+      <Text style={styles.countdown}>{seconds}</Text>
+      <Body muted>
+        {t.workout.restHint} {nextName}
+      </Body>
+      <Button title={t.workout.skipRest} variant="secondary" onPress={onSkip} style={{ marginTop: spacing.md }} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.bg },
+  cameraBox: { flex: 1, overflow: 'hidden', backgroundColor: '#000' },
+  center: { alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+  topBar: { position: 'absolute', top: 48, left: spacing.md, right: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.overlay, alignItems: 'center', justifyContent: 'center' },
+  iconText: { color: colors.white, fontSize: 18, fontWeight: '700' },
+  exerciseName: { color: colors.white, fontWeight: '800', fontSize: 18, textShadowColor: '#000', textShadowRadius: 6 },
+  setLabel: { color: colors.textMuted, fontWeight: '600' },
+  fps: { color: colors.textDim, fontSize: 11 },
+  modelBanner: { position: 'absolute', top: 100, alignSelf: 'center', backgroundColor: colors.overlay, padding: spacing.sm, borderRadius: radius.sm },
+  countdown: { fontSize: 120, fontWeight: '900', color: colors.white, textShadowColor: '#000', textShadowRadius: 12 },
+  countdownLabel: { fontSize: 22, color: colors.white, fontWeight: '700' },
+  feedback: { position: 'absolute', bottom: spacing.lg, alignSelf: 'center', backgroundColor: 'rgba(255,92,122,0.9)', paddingVertical: 12, paddingHorizontal: 20, borderRadius: radius.pill },
+  feedbackText: { color: colors.white, fontWeight: '800', fontSize: 18 },
+  hud: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, paddingBottom: spacing.xl, gap: spacing.md, backgroundColor: colors.bg },
+  counter: { fontSize: 72, fontWeight: '900', color: colors.white, lineHeight: 78 },
+  counterTarget: { fontSize: 28, color: colors.textDim, fontWeight: '700' },
+  counterLabel: { color: colors.textMuted, fontWeight: '600', marginTop: -6 },
+  hudButtons: { gap: spacing.sm, alignItems: 'stretch', minWidth: 150 },
+});
