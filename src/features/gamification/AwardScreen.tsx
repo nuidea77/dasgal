@@ -12,6 +12,10 @@ import { useProgressStore } from '@/store/useProgressStore';
 import { colors, fonts, radius, spacing, typography } from '@/theme';
 
 const { width: SCREEN_W } = Dimensions.get('window');
+/** How far the medal drifts up as it floats. */
+const FLOAT_RISE = 10;
+/** Room above the medal for that drift plus the entrance spring's overshoot. */
+const HEADROOM = 24;
 const MEDAL = Math.min(240, SCREEN_W * 0.62);
 
 /**
@@ -79,7 +83,7 @@ export function AwardScreen({ route, navigation }: RootScreenProps<'Award'>) {
     }
   };
 
-  const float = shimmer.interpolate({ inputRange: [0, 1], outputRange: [0, -10] });
+  const float = shimmer.interpolate({ inputRange: [0, 1], outputRange: [0, -FLOAT_RISE] });
   const glowScale = shimmer.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
 
   return (
@@ -212,8 +216,11 @@ const styles = StyleSheet.create({
   kicker: { ...typography.overline },
   name: { ...typography.display, textAlign: 'center', marginTop: spacing.xs },
   date: { ...typography.numberSm, fontSize: 15, lineHeight: 20, color: colors.textMuted, marginTop: spacing.xs },
-  pager: { flexGrow: 0, marginTop: spacing.xl },
-  page: { width: SCREEN_W, alignItems: 'center' },
+  // The pager is a ScrollView, so it clips: the medal drifts up by FLOAT_RISE
+  // and the spring that brings it in overshoots past its resting size, and both
+  // would shave the top off the badge without this headroom.
+  pager: { flexGrow: 0, marginTop: spacing.xl - HEADROOM },
+  page: { width: SCREEN_W, alignItems: 'center', paddingTop: HEADROOM },
   body: { paddingHorizontal: spacing.xl, alignItems: 'center', gap: spacing.md, marginTop: spacing.lg },
   congrats: { ...typography.body, color: colors.textMuted, fontSize: 16, lineHeight: 24, textAlign: 'center' },
   congratsStrong: { fontFamily: fonts.bold, letterSpacing: -0.2 },
