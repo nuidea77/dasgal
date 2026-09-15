@@ -114,7 +114,7 @@ export function ProgressScreen() {
 }
 
 const styles = StyleSheet.create({
-  rank: { ...typography.h1, color: colors.accent, fontFamily: fonts.black, fontSize: 26, lineHeight: 32 },
+  rank: { ...typography.h1, color: colors.accent, fontSize: 28, lineHeight: 34 },
   levelPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.bgElevated, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill },
   levelText: { ...typography.numberSm },
   badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

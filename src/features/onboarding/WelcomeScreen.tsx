@@ -59,7 +59,7 @@ export function WelcomeScreen({ navigation }: OnboardingScreenProps<'Welcome'>) 
 
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: spacing.xs, marginTop: spacing.lg },
-  title: { ...typography.display, fontSize: 48, lineHeight: 54, letterSpacing: -1.2, color: colors.primary },
+  title: { ...typography.display, fontSize: 56, lineHeight: 62, letterSpacing: 1, color: colors.primary },
   tagline: { ...typography.h3, color: colors.accent, fontFamily: fonts.bold, marginBottom: 2, textAlign: 'center' },
   bullet: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.card, padding: spacing.sm, borderRadius: radius.md, borderWidth: 1, borderColor: colors.cardBorder },
   bulletIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.bgElevated, alignItems: 'center', justifyContent: 'center' },

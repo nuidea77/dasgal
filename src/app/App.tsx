@@ -57,14 +57,18 @@ function useForegroundTasks() {
 export default function App() {
   useLanguageSync();
   useForegroundTasks();
-  // Inter is bundled as five static weights (assets/fonts, SIL OFL) rather than
-  // pulled from the @expo-google-fonts package, which would ship all 36 faces.
+  // Oswald for display, Inter for text, JetBrains Mono for figures — bundled as
+  // static weights (assets/fonts, SIL OFL) rather than pulled from the
+  // @expo-google-fonts packages, which would ship every face of each family.
   const [fontsLoaded, fontError] = useFonts({
+    Oswald_500Medium: require('../../assets/fonts/Oswald-Medium.ttf'),
+    Oswald_600SemiBold: require('../../assets/fonts/Oswald-SemiBold.ttf'),
     Inter_400Regular: require('../../assets/fonts/Inter-Regular.ttf'),
     Inter_500Medium: require('../../assets/fonts/Inter-Medium.ttf'),
     Inter_600SemiBold: require('../../assets/fonts/Inter-SemiBold.ttf'),
     Inter_700Bold: require('../../assets/fonts/Inter-Bold.ttf'),
-    Inter_900Black: require('../../assets/fonts/Inter-Black.ttf'),
+    JetBrainsMono_500Medium: require('../../assets/fonts/JetBrainsMono-Medium.ttf'),
+    JetBrainsMono_700Bold: require('../../assets/fonts/JetBrainsMono-Bold.ttf'),
   });
   const ready = fontsLoaded || !!fontError;
 

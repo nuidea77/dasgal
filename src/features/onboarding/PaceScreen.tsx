@@ -75,5 +75,5 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.card, borderRadius: radius.md, padding: spacing.md, borderWidth: 2, borderColor: colors.cardBorder, gap: 6 },
   cardSelected: { borderColor: colors.accent, backgroundColor: '#163D33' },
   name: { ...typography.h3, fontSize: 18, fontFamily: fonts.bold },
-  weeks: { ...typography.numberMd, fontSize: 18, lineHeight: 23 },
+  weeks: { ...typography.numberLg, fontSize: 22, lineHeight: 28 },
 });

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { levelForXp, xpForLevel } from '@/domain/gamification/levels';
-import { colors, fonts, radius, typography } from '@/theme';
+import { colors, radius, typography } from '@/theme';
 
 interface Props {
   /** XP before the workout. */
@@ -81,8 +81,8 @@ export function XpBar({ fromXp, toXp, levelLabel, onDone }: Props) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  label: { ...typography.numberMd, fontSize: 16, lineHeight: 20 },
-  xp: { color: colors.textMuted, fontFamily: fonts.semibold },
+  label: { ...typography.h2, fontSize: 19, lineHeight: 24 },
+  xp: { ...typography.numberSm, fontSize: 14, lineHeight: 19, color: colors.textMuted },
   track: { height: 14, borderRadius: radius.pill, backgroundColor: colors.bgElevated, overflow: 'hidden' },
   fillBar: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.accent },
 });

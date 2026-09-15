@@ -21,7 +21,7 @@ import { format, useT } from '@/i18n';
 import { useProgressStore } from '@/store/useProgressStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useUserStore } from '@/store/useUserStore';
-import { colors, fonts, radius, spacing, typography } from '@/theme';
+import { colors, radius, spacing, typography } from '@/theme';
 
 const MEDALS = ['#E0A82E', '#C3CBDD', '#C2763A'];
 
@@ -200,6 +200,6 @@ const styles = StyleSheet.create({
   xp: { ...typography.numberMd },
   xpUnit: { ...typography.caption, marginLeft: -4 },
   myRank: { ...typography.numberLg, color: colors.accent, fontSize: 30, lineHeight: 34, minWidth: 64 },
-  myXp: { ...typography.numberMd, color: colors.accent, fontFamily: fonts.black },
+  myXp: { ...typography.numberMd, color: colors.accent },
   gap: { ...typography.caption, textAlign: 'center', letterSpacing: 4 },
 });

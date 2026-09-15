@@ -15,7 +15,7 @@ import { XpBar } from '@/components/XpBar';
 import { titleName } from '@/features/gamification/titleName';
 import { useProgressStore } from '@/store/useProgressStore';
 import { format, useT } from '@/i18n';
-import { colors, fonts, radius, spacing, typography } from '@/theme';
+import { colors, radius, spacing, typography } from '@/theme';
 
 export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'WorkoutComplete'>) {
   const t = useT();
@@ -151,7 +151,7 @@ export function WorkoutCompleteScreen({ route, navigation }: RootScreenProps<'Wo
 
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
-  gain: { ...typography.numberLg, color: colors.accent, fontFamily: fonts.black },
+  gain: { ...typography.numberLg, color: colors.accent },
   volume: { ...typography.numberSm, color: colors.textMuted },
   quality: { ...typography.numberSm, color: colors.textDim, minWidth: 42, textAlign: 'right' },
   notice: {

@@ -10,7 +10,7 @@ import { format } from '@/i18n';
 import { useT } from '@/i18n';
 import { usePlanStore } from '@/store/usePlanStore';
 import { useUserStore } from '@/store/useUserStore';
-import { colors, fonts, spacing, typography } from '@/theme';
+import { colors, spacing, typography } from '@/theme';
 
 export function AssessmentResultScreen({ navigation }: OnboardingScreenProps<'AssessmentResult'>) {
   const t = useT();
@@ -102,6 +102,6 @@ export function AssessmentResultScreen({ navigation }: OnboardingScreenProps<'As
 
 const styles = StyleSheet.create({
   big: { ...typography.numberLg, fontSize: 40, lineHeight: 44 },
-  weeks: { ...typography.numberLg, fontSize: 26, lineHeight: 30, fontFamily: fonts.bold },
+  weeks: { ...typography.numberLg, fontSize: 28, lineHeight: 34 },
   divider: { height: 1, backgroundColor: colors.cardBorder, marginVertical: spacing.sm },
 });

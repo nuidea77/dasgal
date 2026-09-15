@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center', paddingHorizontal: spacing.lg, gap: 2 },
   kicker: { ...typography.overline },
   name: { ...typography.display, textAlign: 'center', marginTop: spacing.xs },
-  date: { ...typography.bodyMuted, marginTop: spacing.xs },
+  date: { ...typography.numberSm, fontSize: 15, lineHeight: 20, color: colors.textMuted, marginTop: spacing.xs },
   pager: { flexGrow: 0, marginTop: spacing.xl },
   page: { width: SCREEN_W, alignItems: 'center' },
   body: { paddingHorizontal: spacing.xl, alignItems: 'center', gap: spacing.md, marginTop: spacing.lg },

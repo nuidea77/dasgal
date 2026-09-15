@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   cellToday: { backgroundColor: colors.accent },
   cellOutside: { opacity: 0.25 },
   weekday: { ...typography.overline, fontSize: 10, letterSpacing: 0.8 },
-  date: { ...typography.numberSm, fontSize: 17, lineHeight: 21 },
+  date: { ...typography.numberMd, fontSize: 17, lineHeight: 22 },
   textOnAccent: { color: colors.bg },
   dot: { width: 5, height: 5, borderRadius: 3 },
 });
