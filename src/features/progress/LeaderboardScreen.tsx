@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, T
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Body, Button, Caption, Card, Chip, Heading, Row } from '@/components/ui';
 import { Icon } from '@/components/Icon';
+import { RankMedal } from '@/components/RankMedal';
 import {
   LeaderboardEntry,
   LeaderboardPeriod,
@@ -22,8 +23,6 @@ import { useProgressStore } from '@/store/useProgressStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useUserStore } from '@/store/useUserStore';
 import { colors, radius, spacing, typography } from '@/theme';
-
-const MEDALS = ['#E0A82E', '#C3CBDD', '#C2763A'];
 
 /** The full board, reachable from the card on the progress tab. */
 export function LeaderboardScreen() {
@@ -47,7 +46,13 @@ export function LeaderboardScreen() {
             <Caption>{t.leaderboard.yourStanding}</Caption>
             <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
               <Row style={{ flex: 1, flexWrap: 'nowrap' }}>
-                <Text style={styles.myRank}>{state === 'online' ? `#${me.rank}` : '—'}</Text>
+                {state !== 'online' ? (
+                  <Text style={styles.myRank}>—</Text>
+                ) : me.rank <= 3 ? (
+                  <RankMedal rank={me.rank} size={56} />
+                ) : (
+                  <Text style={styles.myRank}>#{me.rank}</Text>
+                )}
                 <View style={{ flex: 1 }}>
                   <Body strong numberOfLines={1}>{me.name}</Body>
                   <Caption>{format(t.leaderboard.workoutsCount, { n: me.workouts })}</Caption>
@@ -80,12 +85,9 @@ export function LeaderboardScreen() {
 
 function BoardRow({ row }: { row: RankedEntry }) {
   const t = useT();
-  const medal = MEDALS[row.rank - 1];
   return (
     <View style={[styles.row, row.isMe && styles.rowMe]}>
-      <View style={[styles.rankBox, medal ? { backgroundColor: medal } : null]}>
-        <Text style={[styles.rank, medal ? { color: '#0B1020' } : null]}>{row.rank}</Text>
-      </View>
+      <RankMedal rank={row.rank} />
       <View style={{ flex: 1 }}>
         <Body strong numberOfLines={1}>{row.isMe ? `${row.name} · ${t.leaderboard.you}` : row.name}</Body>
         <Caption>{format(t.leaderboard.workoutsCount, { n: row.workouts })}</Caption>
@@ -187,7 +189,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: spacing.md,
     backgroundColor: colors.card,
     borderRadius: radius.md,
     padding: spacing.sm,
@@ -195,8 +197,6 @@ const styles = StyleSheet.create({
     borderColor: colors.cardBorder,
   },
   rowMe: { borderColor: colors.accent, backgroundColor: colors.bgElevated },
-  rankBox: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
-  rank: { ...typography.numberSm, color: colors.textMuted },
   xp: { ...typography.numberMd },
   xpUnit: { ...typography.caption, marginLeft: -4 },
   myRank: { ...typography.numberLg, color: colors.accent, fontSize: 30, lineHeight: 34, minWidth: 64 },
