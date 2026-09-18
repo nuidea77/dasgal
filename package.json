@@ -49,6 +49,8 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@babel/plugin-transform-arrow-functions": "^7.29.7",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.29.7",
+    "@babel/plugin-transform-optional-chaining": "^7.29.7",
     "@babel/plugin-transform-shorthand-properties": "^7.29.7",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
