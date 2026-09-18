@@ -43,6 +43,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@babel/plugin-transform-arrow-functions": "^7.29.7",
     "@babel/plugin-transform-shorthand-properties": "^7.29.7",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
