@@ -20,7 +20,8 @@
       "supportsTablet": false,
       "bundleIdentifier": "mn.dasgal.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "Дасгалын хөдөлгөөнийг таньж тоолохын тулд камер ашиглана. Дүрс утаснаас гадагш илгээгдэхгүй.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Дасгалын хөдөлгөөнийг таньж тоолохын тулд камер ашиглана. Дүрс бичлэг зөвхөн утсан дээр боловсруулагдаж, хадгалагдахгүй, хаашаа ч илгээгдэхгүй.",
         "UIBackgroundModes": [
           "remote-notification"
         ],
