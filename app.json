@@ -20,7 +20,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "mn.dasgal.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "Дасгалын хөдөлгөөнийг таньж тоолохын тулд камер ашиглана. Дүрс бичлэг зөвхөн утсан дээр боловсруулагдаж, хадгалагдахгүй, хаашаа ч илгээгдэхгүй.",
+        "NSCameraUsageDescription": "Дасгалын хөдөлгөөнийг таньж тоолохын тулд камер ашиглана. Дүрс утаснаас гадагш илгээгдэхгүй.",
         "UIBackgroundModes": [
           "remote-notification"
         ],
@@ -102,7 +102,10 @@
       "expo-splash-screen"
     ],
     "extra": {
-      "eas": {}
-    }
+      "eas": {
+        "projectId": "6d77cf3d-c3b2-468a-b673-3f1accb25bd9"
+      }
+    },
+    "owner": "nuidea"
   }
 }
