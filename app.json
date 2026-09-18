@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Dasgal",
-    "slug": "dasgal",
+    "slug": "dasgal-test",
     "version": "1.0.0",
     "scheme": "dasgal",
     "orientation": "portrait",
@@ -103,9 +103,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "6d77cf3d-c3b2-468a-b673-3f1accb25bd9"
+        "projectId": "bd6e1dbd-cc69-4105-b465-f75990a0708a"
       }
     },
-    "owner": "nuidea"
+    "owner": "nuideas-team"
   }
 }
