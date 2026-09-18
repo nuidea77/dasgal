@@ -99,7 +99,6 @@
           "background": false
         }
       ],
-      "react-native-health-connect",
       "expo-splash-screen"
     ],
     "extra": {
