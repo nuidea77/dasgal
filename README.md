@@ -106,6 +106,7 @@ npx expo-doctor         # config, хамаарлын хувилбарууд
 | Автомат тоолуур, өнцгийн шалгалт | `domain/pose/repEngine.ts`, `analyzers/` |
 | Дуут хөтөч | `services/voice/coach.ts`, `i18n` → `feedback`, `voice` |
 | Амралтын таймер + дуут дохио | `features/workout/sessionReducer.ts`, `WorkoutSessionScreen` |
+| Дасгалын демо клип сешн дотор — байрлал тохируулах/тоолох үед булангийн жижиг цонхонд одоогийн дасгал, амралтын үед дараагийн дасгал томоор | `WorkoutSessionScreen` → `DemoPip`, `RestOverlay` (`components/ExerciseVideo`) |
 | Push мэдэгдэл (сануулга, сэдэл) | `services/notifications/scheduler.ts`, `SettingsScreen` |
 | Баяр хүргэх анимэйшн, badge, level, алгассан өдөрт XP хасах (хөтөлбөр дахин эхлэхгүй) | `WorkoutCompleteScreen`, `components/Confetti`, `domain/gamification/*` (`penalty.ts`: алгассан өдөр бүрт −30 XP) |
 | Performance | Inference 24 FPS-ээр throttle, preview 30 FPS; int8 модель; JS рүү зөвхөн keypoints |

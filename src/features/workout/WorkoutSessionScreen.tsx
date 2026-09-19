@@ -5,6 +5,7 @@ import { useKeepAwake } from 'expo-keep-awake';
 import * as Haptics from 'expo-haptics';
 import { RootScreenProps } from '@/app/navigation/types';
 import { Body, Button } from '@/components/ui';
+import { ExerciseVideo, hasExerciseVideo } from '@/components/ExerciseVideo';
 import { FramingGuide } from '@/components/FramingGuide';
 import { Icon } from '@/components/Icon';
 import { PoseOverlay } from '@/components/PoseOverlay';
@@ -13,7 +14,7 @@ import { evaluateFraming } from '@/domain/pose/framing';
 import { ExerciseAnalyzer } from '@/domain/pose/repEngine';
 import { mapPoseToView } from '@/domain/pose/viewMapping';
 import { FeedbackKey } from '@/domain/pose/feedback';
-import { estimateCalories, todayIso } from '@/domain/plan/generator';
+import { PlannedExercise, estimateCalories, todayIso } from '@/domain/plan/generator';
 import { sessionProgress } from '@/domain/workout/completion';
 import { getExercise } from '@/domain/plan/exercises';
 import { format, useT } from '@/i18n';
@@ -251,6 +252,12 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
         ) : null}
         {state.status === 'positioning' ? <FramingGuide width={viewSize.width} height={viewSize.height} status={framing.status} /> : null}
 
+        {/* How the movement should look, shown while the user gets ready — not
+            while they are doing it, when the camera and the counter are the focus. */}
+        {state.status === 'positioning' || state.status === 'countdown' || state.status === 'paused' ? (
+          <DemoPip exerciseId={pe.exerciseId} label={t.plan.howTo} />
+        ) : null}
+
         {/* Top bar */}
         <View style={styles.topBar}>
           <Pressable onPress={quit} hitSlop={12} style={styles.iconBtn}>
@@ -285,6 +292,7 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
           <RestOverlay
             seconds={state.restLeft}
             nextName={nextExerciseName(state, t)}
+            nextExerciseId={nextExercise(state)?.exerciseId}
             progress={`${state.exerciseIndex + 1}/${state.exercises.length}`}
             cheer={state.setIndex >= pe.sets - 1 ? t.workout.cheerStrong : t.workout.cheerFinalSet}
             onSkip={() => dispatch({ type: 'SKIP_REST' })}
@@ -350,22 +358,56 @@ export function WorkoutSessionScreen({ route, navigation }: RootScreenProps<'Wor
   );
 }
 
-function nextExerciseName(state: ReturnType<typeof createSession>, t: ReturnType<typeof useT>): string {
+/** What comes after the current set: the same exercise, or the next one once its sets are done. */
+function nextExercise(state: ReturnType<typeof createSession>): PlannedExercise | undefined {
   const pe = currentExercise(state);
-  if (!pe) return '';
+  if (!pe) return undefined;
   const lastSet = state.setIndex >= pe.sets - 1;
-  const next = lastSet ? state.exercises[state.exerciseIndex + 1] : pe;
+  return lastSet ? state.exercises[state.exerciseIndex + 1] : pe;
+}
+
+function nextExerciseName(state: ReturnType<typeof createSession>, t: ReturnType<typeof useT>): string {
+  const next = nextExercise(state);
   if (!next) return '';
   return t.exercises[next.exerciseId as keyof typeof t.exercises]?.name ?? next.exerciseId;
 }
 
-function RestOverlay({ seconds, nextName, progress, cheer, onSkip }: { seconds: number; nextName: string; progress: string; cheer: string; onSkip: () => void }) {
+/** Small looping clip of the movement, pinned to a corner of the camera view. */
+function DemoPip({ exerciseId, label }: { exerciseId: string; label: string }) {
+  if (!hasExerciseVideo(exerciseId)) return null;
+  return (
+    <View style={styles.pip} pointerEvents="none">
+      <ExerciseVideo key={exerciseId} exerciseId={exerciseId} style={styles.pipVideo} />
+      <Text style={styles.pipLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function RestOverlay({
+  seconds,
+  nextName,
+  nextExerciseId,
+  progress,
+  cheer,
+  onSkip,
+}: {
+  seconds: number;
+  nextName: string;
+  nextExerciseId?: string;
+  progress: string;
+  cheer: string;
+  onSkip: () => void;
+}) {
   const t = useT();
   return (
     <View style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: colors.overlay }]}>
       <Text style={styles.restCheer}>{cheer}</Text>
       <Text style={styles.countdownLabel}>{t.workout.restTitle}</Text>
       <Text style={styles.countdown}>{seconds}</Text>
+      {/* The rest is the moment to study what comes next, so the clip goes large here. */}
+      {nextExerciseId && hasExerciseVideo(nextExerciseId) ? (
+        <ExerciseVideo key={nextExerciseId} exerciseId={nextExerciseId} style={styles.restDemo} />
+      ) : null}
       <Body muted>
         {t.workout.restHint} {nextName}
       </Body>
@@ -397,4 +439,18 @@ const styles = StyleSheet.create({
   counterTarget: { ...typography.numberLg, fontSize: 30, lineHeight: 34, color: colors.textDim },
   counterLabel: { ...typography.caption, color: colors.textMuted, fontFamily: fonts.semibold, fontSize: 14, lineHeight: 18, marginTop: -4 },
   hudButtons: { gap: spacing.sm, alignItems: 'stretch', minWidth: 150 },
+  pip: {
+    position: 'absolute',
+    right: spacing.md,
+    bottom: spacing.md,
+    width: 150,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: colors.overlay,
+  },
+  pipVideo: { borderRadius: 0 },
+  pipLabel: { ...typography.overline, color: colors.white, fontSize: 10, letterSpacing: 1.2, paddingVertical: 5, textAlign: 'center' },
+  restDemo: { width: 220, borderRadius: radius.md, marginVertical: spacing.xs },
 });
