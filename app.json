@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Dasgal",
-    "slug": "dasgal",
+    "slug": "dasgal-test",
     "version": "1.0.0",
     "scheme": "dasgal",
     "orientation": "portrait",
@@ -14,6 +14,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "mn.dasgal.app",
       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Дасгалын хөдөлгөөнийг таньж тоолохын тулд камер ашиглана. Дүрс бичлэг зөвхөн утсан дээр боловсруулагдаж, хадгалагдахгүй, хаашаа ч илгээгдэхгүй.",
         "UIBackgroundModes": [
           "remote-notification"
@@ -105,7 +106,10 @@
       ]
     ],
     "extra": {
-      "eas": {}
-    }
+      "eas": {
+        "projectId": "bd6e1dbd-cc69-4105-b465-f75990a0708a"
+      }
+    },
+    "owner": "nuideas-team"
   }
 }
