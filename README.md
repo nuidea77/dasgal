@@ -63,6 +63,30 @@ npm start                    # dev client-той Metro
 Windows дээр `npx expo run:android` ажиллуулахад Android Studio, JDK 17 болон
 `ANDROID_HOME` тохируулсан байх шаардлагатай.
 
+### iPhone дээр Windows-оос
+
+Xcode зөвхөн macOS дээр байдаг тул iOS build-ыг **EAS cloud** хийнэ; JS нь Windows дээрх
+Metro-оос очно. Төлбөртэй Apple Developer акаунт шаардлагатай (төхөөрөмж дээр суулгах
+build-д provisioning profile хэрэгтэй — үнэгүй Apple ID-аар болдоггүй).
+
+```powershell
+npm i -g eas-cli
+eas login
+eas device:create        # iPhone-оо бүртгэнэ: гарч ирэх холбоосыг iPhone-ий Safari дээр нээ
+eas build --profile development --platform ios     # cloud дээр 10–20 мин
+```
+
+Build дууссаны дараа гарч ирэх холбоос/QR-ыг iPhone дээр нээж суулгана. Дараа нь Windows дээр:
+
+```powershell
+npm start                # Metro; iPhone + PC нэг Wi-Fi-д
+npm start -- --tunnel    # өөр сүлжээнд бол
+```
+
+iPhone дээрх Dasgal dev client апп нээгээд QR-ыг уншуулна. Кодын өөрчлөлт шууд орно;
+native пакет нэмэх / `app.json` өөрчлөх үед л дахин `eas build` хэрэгтэй.
+Simulator build хэрэгтэй бол (Mac дээр) `--profile development-simulator`.
+
 Хамаарлыг цоо шинээр суулгах (PowerShell — `rmdir /s /q` нь cmd.exe-гийн команд
 тул энд ажиллахгүй; `npm ci` нь `node_modules`-ыг өөрөө устгадаг):
 
