@@ -60,12 +60,26 @@ npx expo run:android         # эсвэл: npx expo run:ios
 npm start                    # dev client-той Metro
 ```
 
+Windows дээр `npx expo run:android` ажиллуулахад Android Studio, JDK 17 болон
+`ANDROID_HOME` тохируулсан байх шаардлагатай.
+
 Шалгалт:
 
 ```bash
 npm run typecheck
 npm test
+npx expo-doctor         # config, хамаарлын хувилбарууд
 ```
+
+### Асуудал гарвал
+
+| Шинж тэмдэг | Шалтгаан |
+|---|---|
+| Expo Go дээр QR уншуулаад шууд унана | Энэ апп Expo Go дээр **ажиллахгүй**. `npx expo run:android` / `run:ios`-оор dev client суулгасны дараа `npm start` ажиллана. |
+| `npm start` "No development build installed" | Төхөөрөмж дээр dev client байхгүй байна — дээрх `run:*` командыг эхлээд ажиллуул. |
+| Metro асаад цагаан/хоосон дэлгэц | Фонт ачаалагдтал splash барьдаг. `assets/fonts/*.ttf` бүрэн эсэхийг шалга (8 файл). |
+| `expo-doctor` хувилбарын зөрүү заана | `npx expo install --fix` — SDK-тай таарахгүй пакет апп нээгдэх үед унагаадаг. |
+| Prebuild-ийн дараа өөрчлөлт нэвтрэхгүй | `ios/`, `android/` нь үүсгэгддэг хавтас (gitignore). `npx expo prebuild --clean`-ээр дахин үүсгэ. |
 
 Сонголтот клауд синк: `.env.example` → `.env` болгож Supabase URL/anon key оруулна, `supabase/schema.sql`-ийг ажиллуулна. Хоосон үлдээвэл апп бүрэн offline горимд ажиллана.
 
