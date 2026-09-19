@@ -106,10 +106,7 @@
       ]
     ],
     "extra": {
-      "eas": {
-        "projectId": "bd6e1dbd-cc69-4105-b465-f75990a0708a"
-      }
-    },
-    "owner": "nuideas-team"
+      "eas": {}
+    }
   }
 }
