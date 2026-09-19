@@ -63,6 +63,14 @@ npm start                    # dev client-той Metro
 Windows дээр `npx expo run:android` ажиллуулахад Android Studio, JDK 17 болон
 `ANDROID_HOME` тохируулсан байх шаардлагатай.
 
+Хамаарлыг цоо шинээр суулгах (PowerShell — `rmdir /s /q` нь cmd.exe-гийн команд
+тул энд ажиллахгүй; `npm ci` нь `node_modules`-ыг өөрөө устгадаг):
+
+```powershell
+npm ci
+npx expo start --clear
+```
+
 Шалгалт:
 
 ```bash
@@ -79,7 +87,8 @@ npx expo-doctor         # config, хамаарлын хувилбарууд
 | `npm start` "No development build installed" | Төхөөрөмж дээр dev client байхгүй байна — дээрх `run:*` командыг эхлээд ажиллуул. |
 | Metro асаад цагаан/хоосон дэлгэц | Фонт ачаалагдтал splash барьдаг. `assets/fonts/*.ttf` бүрэн эсэхийг шалга (8 файл). |
 | `expo-doctor` хувилбарын зөрүү заана | `npx expo install --fix` — SDK-тай таарахгүй пакет апп нээгдэх үед унагаадаг. |
-| `Cannot find module '@babel/plugin-...'` (ихэвчлэн `usePoseDetector.ts` дээр) | `react-native-worklets-core`-ийн babel plugin өөрийн зарлаагүй plugin-үүдийг нэрээр нь дууддаг. Тэдгээр нь `devDependencies`-д **7.x** хувилбараар байх ёстой (`babel.config.js`-д тайлбартай) — устгаж болохгүй. |
+| `Cannot find module '@babel/plugin-...'` (ихэвчлэн `usePoseDetector.ts` дээр) | `react-native-worklets-core`-ийн babel plugin өөрийн зарлаагүй plugin-үүдийг нэрээр нь дууддаг. Тэдгээр нь `devDependencies`-д **7.x** хувилбараар байх ёстой (`babel.config.js`-д тайлбартай) — устгаж болохгүй. Суусан эсэхийг шалгах: `Test-Path node_modules\@babel\plugin-transform-template-literals` |
+| `npm ci` хийсний дараа ч ижил алдаа | Metro-гийн кэш хуучирсан байна — `npx expo start --clear`. |
 | Prebuild-ийн дараа өөрчлөлт нэвтрэхгүй | `ios/`, `android/` нь үүсгэгддэг хавтас (gitignore). `npx expo prebuild --clean`-ээр дахин үүсгэ. |
 
 Сонголтот клауд синк: `.env.example` → `.env` болгож Supabase URL/anon key оруулна, `supabase/schema.sql`-ийг ажиллуулна. Хоосон үлдээвэл апп бүрэн offline горимд ажиллана.
