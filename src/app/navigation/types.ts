@@ -29,6 +29,7 @@ export type RootStackParamList = {
   TitleUnlock: { level: number };
   Award: { badgeIds: string[]; index?: number; after?: 'title' | 'home' | 'back'; level?: number };
   Leaderboard: undefined;
+  Awards: undefined;
 };
 
 export type MainTabParamList = {

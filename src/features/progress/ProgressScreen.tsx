@@ -6,8 +6,8 @@ import { RootStackParamList } from '@/app/navigation/types';
 import { Body, Caption, Card, ProgressBar, Row, Screen, Stat, Subheading, Title } from '@/components/ui';
 import { Icon } from '@/components/Icon';
 import { AwardMedal } from '@/components/AwardMedal';
-import { BADGES } from '@/domain/gamification/badges';
-import { styleFor } from '@/domain/gamification/awards';
+import { BADGES, nextBadge } from '@/domain/gamification/badges';
+import { sortByEarned, styleFor } from '@/domain/gamification/awards';
 import { workoutsSince, xpSince } from '@/domain/gamification/leaderboard';
 import { weekStart } from '@/domain/plan/weekStrip';
 import { todayIso } from '@/domain/plan/generator';
@@ -16,8 +16,10 @@ import { nextTitle, titleForLevel } from '@/domain/gamification/titles';
 import { titleName } from '@/features/gamification/titleName';
 import { format } from '@/i18n';
 import { useT } from '@/i18n';
-import { useProgressStore } from '@/store/useProgressStore';
-import { colors, fonts, radius, spacing, typography } from '@/theme';
+import { progressSnapshot, useProgressStore } from '@/store/useProgressStore';
+import { colors, radius, spacing, typography } from '@/theme';
+
+const RAIL_SIZE = 6;
 
 export function ProgressScreen() {
   const t = useT();
@@ -25,6 +27,12 @@ export function ProgressScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const lp = levelProgress(p.xp);
   const owned = new Set(p.badges);
+  const next = nextBadge(progressSnapshot(p), p.badges);
+  // Newest medals first, then the next few still to earn, so the rail always shows a full row.
+  const rail = [
+    ...sortByEarned(p.badges, p.badgeDates).reverse().map((id) => ({ id, has: true })),
+    ...BADGES.filter((b) => !owned.has(b.id)).map((b) => ({ id: b.id, has: false })),
+  ].slice(0, RAIL_SIZE);
   const history = [...p.history].reverse().slice(0, 20);
   const weekFrom = weekStart(todayIso());
   const weekXp = xpSince(p.history, weekFrom);
@@ -75,27 +83,28 @@ export function ProgressScreen() {
         </Card>
       </Pressable>
 
-      <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
-        <Subheading>{t.awards.title}</Subheading>
-        <Caption>{format(t.awards.count, { n: p.badges.length, total: BADGES.length })}</Caption>
-      </Row>
-      <View style={styles.badgeGrid}>
-        {BADGES.map((b, i) => {
-          const info = t.badges[b.id as keyof typeof t.badges];
-          const has = owned.has(b.id);
-          return (
-            <Pressable
-              key={b.id}
-              style={styles.badge}
-              accessibilityRole="button"
-              onPress={() => navigation.navigate('Award', { badgeIds: BADGES.map((x) => x.id), index: i, after: 'back' })}
-            >
-              <AwardMedal badgeId={b.id} style={styleFor(b.id)} size={64} locked={!has} />
-              <Text style={[styles.badgeName, !has && { color: colors.textDim }]} numberOfLines={2}>{info?.name ?? b.id}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <Pressable onPress={() => navigation.navigate('Awards')} accessibilityRole="button">
+        <Card>
+          <Row style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+            <Row style={{ flexWrap: 'nowrap', flex: 1 }}>
+              <Icon name="award" size={20} color={colors.warning} />
+              <View style={{ flex: 1 }}>
+                <Body strong>{t.awards.title}</Body>
+                <Caption>
+                  {format(t.awards.count, { n: p.badges.length, total: BADGES.length })}
+                  {next ? ` · ${t.awards.nextUp}: ${t.badges[next.id as keyof typeof t.badges]?.name ?? next.id} ${next.progress.current}/${next.progress.target}` : ''}
+                </Caption>
+              </View>
+            </Row>
+            <Caption style={{ color: colors.primary }}>{t.awards.seeAll}</Caption>
+          </Row>
+          <View style={styles.medalRail}>
+            {rail.map(({ id, has }) => (
+              <AwardMedal key={id} badgeId={id} style={styleFor(id)} size={44} locked={!has} />
+            ))}
+          </View>
+        </Card>
+      </Pressable>
       <Subheading>{t.progress.history}</Subheading>
       {history.length === 0 ? <Body muted>{t.progress.noHistory}</Body> : null}
       {history.map((r) => (
@@ -117,7 +126,5 @@ const styles = StyleSheet.create({
   rank: { ...typography.h1, color: colors.accent, fontSize: 28, lineHeight: 34 },
   levelPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.bgElevated, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill },
   levelText: { ...typography.numberSm },
-  badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  badge: { width: '30%', flexGrow: 1, backgroundColor: colors.card, borderRadius: radius.md, paddingVertical: spacing.md, paddingHorizontal: spacing.sm, alignItems: 'center', gap: spacing.xs, borderWidth: 1, borderColor: colors.cardBorder },
-  badgeName: { ...typography.caption, color: colors.text, fontFamily: fonts.semibold, fontSize: 12, textAlign: 'center' },
+  medalRail: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.xs },
 });

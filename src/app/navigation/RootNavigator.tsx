@@ -30,6 +30,7 @@ import { LibraryScreen } from '@/features/library/LibraryScreen';
 import { TitleUnlockScreen } from '@/features/gamification/TitleUnlockScreen';
 import { AwardScreen } from '@/features/gamification/AwardScreen';
 import { LeaderboardScreen } from '@/features/progress/LeaderboardScreen';
+import { AwardsScreen } from '@/features/gamification/AwardsScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { MainTabParamList, OnboardingStackParamList, RootStackParamList } from './types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -94,6 +95,7 @@ export function RootNavigator() {
           <Root.Screen name="TitleUnlock" component={TitleUnlockScreen} options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
           <Root.Screen name="Award" component={AwardScreen} options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
           <Root.Screen name="Leaderboard" component={LeaderboardScreen} options={{ title: t.leaderboard.title }} />
+          <Root.Screen name="Awards" component={AwardsScreen} options={{ title: t.awards.title }} />
         </Root.Navigator>
       ) : (
         <Onboarding.Navigator screenOptions={{ headerShown: false }}>

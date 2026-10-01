@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { newlyEarnedBadges } from '@/domain/gamification/badges';
+import { ProgressSnapshot, newlyEarnedBadges } from '@/domain/gamification/badges';
 import { levelForXp, xpForWorkout } from '@/domain/gamification/levels';
 import { computeStreak } from '@/domain/gamification/streak';
 import { MISSED_WORKOUT_XP, missedPenaltyDates } from '@/domain/gamification/penalty';
@@ -36,6 +36,20 @@ interface ProgressState {
   dismissPenaltyNotice: () => void;
   recordWorkout: (record: Omit<WorkoutRecord, 'xp'>, scheduledDates: string[], programFinished: boolean) => RecordOutcome;
   reset: () => void;
+}
+
+/** The current standing as the badge rules see it, for progress toward locked awards. */
+export function progressSnapshot(s: Pick<ProgressState, 'history' | 'streakDays' | 'totalReps' | 'repsByExercise' | 'hardWorkouts' | 'perfectWorkouts' | 'programsCompleted' | 'xp'>): ProgressSnapshot {
+  return {
+    workoutsCompleted: s.history.length,
+    streakDays: s.streakDays,
+    totalReps: s.totalReps,
+    repsByExercise: s.repsByExercise,
+    hardWorkouts: s.hardWorkouts,
+    perfectWorkouts: s.perfectWorkouts,
+    programsCompleted: s.programsCompleted,
+    level: levelForXp(s.xp),
+  };
 }
 
 export const useProgressStore = create<ProgressState>()(
